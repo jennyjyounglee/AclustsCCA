@@ -1,6 +1,6 @@
 Package: AclustsCCA
 Type: Package
-Title: A Cluster Based Sparse Canonical COrrelation Analayis to Test Associations Between A Multi-Pollutant Mixture and High-Dimentional DNA Methylation.
+Title: A Cluster Based Sparse Canonical Correlation Analayis to Test Associations Between A Multi-Pollutant Mixture and High-Dimentional DNA Methylation
 Version: 0.1.0
 Author: Jenny Lee
 Maintainer: Jenny Lee <jenny_lee@g.harvard.edu>
