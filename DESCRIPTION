@@ -1,0 +1,10 @@
+Package: AclustsCCA
+Type: Package
+Title: A Cluster Based Sparse Canonical COrrelation Analayis to Test Associations Between A Multi-Pollutant Mixture and High-Dimentional DNA Methylation.
+Version: 0.1.0
+Author: Jenny Lee
+Maintainer: Jenny Lee <jenny_lee@g.harvard.edu>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
