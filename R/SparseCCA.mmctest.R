@@ -540,7 +540,7 @@ hBH <- function(p, threshold) {
   );
 }
 
-# Oridinal code
+# Original code
 # hBH <- function(p, threshold) {
 #
 #   return(rank(p) <= max( c(which(sort(p)<=(1:length(p))*threshold/length(p)),-1) ));

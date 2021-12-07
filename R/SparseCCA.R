@@ -1,43 +1,67 @@
-### R-script containing Functions to perform Sparse CCA###
 
-### Reference:
-### SparseCCA developed by
-### Wilms, Ines, and Christophe Croux. "Robust sparse canonical correlation analysis." BMC systems biology 10.1 (2016): 1-13.
-###
-### Downloaded From:
-### https://sites.google.com/view/iwilms/software?authuser=0
+#' @title
+#' Implement SparseCCA
+#'
+#' @description
+#' Implement an iterative penalized least squares approach to sparse canonical correlation analysis (SparseCCA)
+#' with various penalty functions. Modified Wilms, Ines, and Christophe Croux. "Robust sparse canonical correlation analysis." BMC systems biology 10.1 (2016): 1-13.
+#' The original code is accessible https://sites.google.com/view/iwilms/software?authuser=0
+#'
+#'
+#' ### INPUT
+#' @param X                   : \eqn{n} by \eqn{p} exposure data matrix, where \eqn{n} is sample size and \eqn{p} is number of exposures.
+#' @param Y                   : \eqn{n} by \eqn{q} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.
+#' @param Xmethod             : penalty function for the exposure, i.e. penalty function when regressing Y onto X. Possible values are:
+#'   - "lasso": Lasso
+#'   - "alasso": Adaptive Lasso
+#'   - "gglasso": Group Lasso
+#'   - "SGL": Sparse Group Lasso
+#' @param Ymethod             : penalty function for the outcome, i.e. penalty function when regressing X onto Y. Possible values are:
+#'   - "lasso": Lasso
+#'   - "alasso": Adaptive Lasso
+#'   - "gglasso": Group Lasso
+#'   - "SGL": Sparse Group Lasso
+#'   - "OLS": Ordinary Least Square
+#' @param init.method         : "Possible two values are:
+#'   - "lasso": When high-dimensional exposure data (i.e. n<p)
+#'   - "OLS": Ordinary Least Square
+#'   - "SVD": Singular Value Decomposition
+#' @param X.groupidx          : A vector of length \eqn{p} that indicates grouping structure of exposure `X`
+#' @param Y.groupidx          : A vector of length \eqn{q} that indicates grouping structure of outcome `Y`
+#' @param standardize         : A standardization (center and scale) of exposure `X` and outcome `Y`
+#' @param max.iter            : A maximum number of iterations
+#' @param conv                : A tolerance value for convergence \eqn{epsilon}
+#'
+#' @return
+#' The function returns a list of 6 objects according to the following order:
+#'   - ALPHA          : An estimated canonical vector of length \eqn{p} corresponding to the exposure data \eqn{X}
+#'   - BETA           : An estimated canonical vector of length \eqn{q} corresponding to the outcome data \eqn{Y}
+#'   - U_ALL          : An estimated canonical variates \eqn{X\alpha} corresponding to the exposure data \eqn{X} which is a vector of length \eqn{n}
+#'   - V_ALL          : An estimated canonical variates \eqn{Y\beta} corresponding to the outcome data \eqn{Y} which is a vector of length \eqn{n}
+#'   - lamdbaA        : A numeric value of the sparsity parameter lambdaA
+#'   - lamdbaB        : A numeric value of the sparsity parameter lambdaB
+#'   - it             : Number of iterations until convergence
+#'
+#' @export
+#'
+#' @examples
+#' data.list <- generate.data(n=500)
+#' DATA.X <- data.list$DATA.X
+#' DATA.Y <- data.list$DATA.Y
+#' SparseCCA.result <- SparseCCA(X=DATA.X,Y=DATA.Y,Xmethod="SGL",Ymethod="lasso",X.groupidx=c(rep(1,4),rep(2,3),rep(3,2),rep(1,3)))
+#' str(SparseCCA.result)
+#' projection.error(data.list$TRUE.ALPHA,SparseCCA.result$ALPHA)
+#' projection.error(data.list$TRUE.BETA,SparseCCA.result$BETA)
+#'
+#'
 
-SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("lasso","alasso","SLR"),init.method="SVD",group.idx=NULL,standardize=T,max.iter=50,conv=5*10^-2){
+SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("lasso","alasso","SGL","SLR"),init.method="SVD",X.groupidx=NULL,Y.groupidx=NULL,standardize=T,max.iter=50,conv=5*10^-2){
   ### Function to perform Sparse Canonical Correlation Analysis using alternating regressions
 
   ### AUXILIARY FUNCTIONS
   # NORMALIZATION_UNIT
   # BIC
   # Sparse.alternating
-
-  ### INPUT
-  # X                   : (nxp) data matrix
-  # Y                   : (nxq) data matrix
-  # Xmethod             : sparsity function for exposure (when regressing Y onto X)
-  # Ymethod             : sparsity function for outcome (when regressing X onto Y)
-  # rank                : number of canonical vector pairs to extract (always set to 1 in our case)
-  # init.method         : "SVD"
-  # group.idx           : grouping structure of exposure
-  # standardize         : standardization of exposure and outcome
-  # max.iter            : maximum number of iterations
-  # conv                : tolerance value for convergence
-
-  ### OUTPUT
-  # ALPHA               : (pxr) estimated canonical vectors correpsonding to the first data set
-  # BETA                : (qxr) estimated canonical vectors correpsonding to the second data set
-  # cancors             : r estimated canonical correlations
-  # U_ALL               : (nxr) estimated canonical variates corresponding to the first data set
-  # V_ALL               : (nxr) estimated canonical variates corresponding to the second data set
-  # lamdbaA             : value of the sparsity parameter lambdaA
-  # lamdbaB             : value of the sparsity parameter lambdaB
-  # it                  : number of iterations
-
-
 
   ### STORE RESULTS
   # ALPHA_ALL<-matrix(NA,ncol=rank,nrow=ncol(X))
@@ -65,8 +89,8 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
   if (init.method == "OLS"){ # OLS : better for nrow(X)>ncol(X) because initial values won't be sparse
     decomp<-eigen(cov(X_data))
     B.PRINCOMP<-X_data%*%decomp$vectors[,1]
-    B.STARTING<-matrix(ginv(t(Y_data)%*%Y_data)%*%t(Y_data)%*%B.PRINCOMP,ncol=1)
-    B.STARTING<-apply(B.STARTING,2,NORMALIZATION_UNIT)
+    B.STARTING<-matrix(MASS::ginv(t(Y_data)%*%Y_data)%*%t(Y_data)%*%B.PRINCOMP,ncol=1)
+    # B.STARTING<-apply(B.STARTING,2,NORMALIZATION_UNIT)
     A.STARTING<-matrix(decomp$vectors[,1],ncol=1)
   } else if (init.method == "SVD"){ # SVD
     decomp<-svd(cov(X,Y),nu=1,nv=1)
@@ -87,7 +111,7 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
     }
     B_BIC<-apply(B.STARTING,2,BIC,Y.data=B.PRINCOMP,X.data=Y_data)
     B.STARTING<-matrix(B.STARTING[,which.min(B_BIC)],ncol=1)
-    B.STARTING<-apply(B.STARTING,2,NORMALIZATION_UNIT)
+    # B.STARTING<-apply(B.STARTING,2,NORMALIZATION_UNIT)
     A.STARTING<-matrix(decomp$vectors[,1],ncol=1)
   }
 
@@ -103,7 +127,7 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
   while( (it<max.iter) & (diff.obj>conv) ){
 
     # Estimating A conditional on B
-    FIT.A<-Sparse.alternating(Xreg=X_data,Yreg=Y_data%*%B.STARTING,method=Xmethod,group.idx=group.idx)
+    FIT.A<-Sparse.alternating(Xreg=X_data,Yreg=Y_data%*%B.STARTING,method=Xmethod,groupidx=X.groupidx)
     AHAT_FINAL<-FIT.A$COEF_FINAL
     lambdaA_ALL[it]<-FIT.A$LAMBDA_FINAL
     if(sum(AHAT_FINAL)==0) {
@@ -117,7 +141,7 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
       FIT.B$COEF_FINAL <- coef(FIT.B)
       FIT.B$LAMBDA_FINAL <- NA
     } else{
-      FIT.B<-Sparse.alternating(Xreg=Y_data,Yreg=X_data%*%AHAT_FINAL,method=Ymethod,group.idx=NULL)
+      FIT.B<-Sparse.alternating(Xreg=Y_data,Yreg=X_data%*%AHAT_FINAL,method=Ymethod,groupidx=Y.groupidx)
     }
     BHAT_FINAL<-FIT.B$COEF_FINAL
     if(sum(BHAT_FINAL)==0) {lambdaB_ALL[it]<-NA; break} else{lambdaB_ALL[it]<-FIT.B$LAMBDA_FINAL}
@@ -134,8 +158,8 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
     it<-it+1
   } # end while-loop
 
-  # Number of ITERATIONS
-  iterations[1,i.r]<-it
+  # # Number of ITERATIONS
+  # iterations[i.r]<-it
 
   # CANONICAL VARIATES after convergence
   Uhat<-X_data%*%AHAT_FINAL
@@ -165,18 +189,13 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
 
   # Final estimates of canonical vectors, variates and canonical correlation
   if(sum(AHAT_FINAL)==0 | sum(BHAT_FINAL)==0) {
-    TAIL.PROB <- NA; cancors.spearman <- cancors.pearson <- NA
+    cancors.spearman <- cancors.pearson <- NA
   } else{
-    TAIL.PROB <- Tail.Prob(as.matrix(X[,AHAT_FINAL != 0]),as.matrix(Y[,BHAT_FINAL != 0]))
     cancors.spearman<-cor(Uhat,Vhat,method="spearman")
     cancors.pearson<-cor(Uhat,Vhat,method="pearson")
   }
-
-  # Standardized Coefficients
-  AHAT_FINAL_STD <- NORMALIZATION_UNIT(AHAT_FINAL)
-  BHAT_FINAL_STD <- NORMALIZATION_UNIT(BHAT_FINAL)
-  names(AHAT_FINAL) <- names(AHAT_FINAL_STD) <- colnames(X)
-  names(BHAT_FINAL) <- names(BHAT_FINAL_STD) <- colnames(Y)
+  names(AHAT_FINAL) <- colnames(X)
+  names(BHAT_FINAL) <- colnames(Y)
 
   # lambdaA_FINAL<-FIT.A$LAMBDA_FINAL
   # lambdaB_FINAL<-FIT.B$LAMBDA_FINAL
@@ -211,25 +230,8 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
   # } # END FOR-LOOP
 
   ## OUTPUT
-  out<-list(ALPHA=AHAT_FINAL,BETA=BHAT_FINAL,ALPHA_STD=AHAT_FINAL_STD,BETA_STD=BHAT_FINAL_STD,cancors.spearman=cancors.spearman,cancors.pearson=cancors.pearson,Uhat=Uhat,Vhat=Vhat,lambdaA=lambdaA_FINAL,lambdaB=lambdaB_FINAL,it=it-1)
+  out<-list(ALPHA=c(AHAT_FINAL),BETA=c(BHAT_FINAL),cancors.spearman=cancors.spearman,cancors.pearson=cancors.pearson,Uhat=Uhat,Vhat=Vhat,lambdaA=lambdaA_FINAL,lambdaB=lambdaB_FINAL,it=it-1)
 }
 
-### Sparse CCA AUXILIARY FUNCTIONS ###
-NORMALIZATION_UNIT<-function(U){
-  # AUX FUNCTION
-  # output: normalized vector U
-  length.U<-as.numeric(sqrt(t(U)%*%U)) # same as as.numeric(sqrt(sum(as.vector(U)^2)))
-  if(length.U==0){length.U<-1}
-  Uunit<-U/length.U
-}
 
-BIC<-function(U,Y.data,X.data){
-  # AUX FUNCTION
-  ### Calculate value of Bayesian information Criterion
-  N <- nrow(Y.data)
-  # sigmahat<-sum(diag((1/nrow(Y.data))*(t(Y.data-X.data%*%U)%*%(Y.data-X.data%*%U))))
-  sigmahat<-sum(t(Y.data-X.data%*%U)%*%(Y.data-X.data%*%U))/N
-  BIC<-N*log(sigmahat) + length(which(U!=0))*log(N)
-  return(BIC)
-}
 

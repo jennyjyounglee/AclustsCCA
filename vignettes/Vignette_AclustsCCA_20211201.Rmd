@@ -1,0 +1,223 @@
+---
+title: "Vignette: AclustsCCA"
+author:
+  - name: "Jenny Lee"
+    url: jenny_lee@g.harvard.edu
+    affiliation: Department of Biostatistics, Harvard T.H. Chan School of Public Health
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  rmarkdown::html_document:
+    theme: cerulean
+  # prettydoc::html_pretty:
+  #   theme: cayman
+---
+
+<style>
+p.comment {
+background-color: #DBDBDB;
+padding: 10px;
+border: 1px solid black;
+margin-left: 25px;
+border-radius: 5px;
+font-style: italic;
+}
+
+</style>
+```{r, include=F}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## [STEP 0] Install R packages needed to run AclustsCCA
+```{r, eval=FALSE}
+library("devtools") # to install "Aclust" R package from github
+devtools::install_github("https://github.com/tamartsi/Aclust")
+
+packagesCRAN <- c("mvtnorm", "gglasso","SGL","MASS", "glmnet", "pls","data.table", "data.table", "Matrix")
+packagesBioC <- c("IlluminaHumanMethylation450kanno.ilmn12.hg19")
+
+## install these packages from CRAN:
+toinstallCRAN <- setdiff(packagesCRAN, installed.packages()[,1])
+install.packages(toinstallCRAN)
+## install these from BioConductor:
+toinstallBioC <- setdiff(packagesBioC, installed.packages()[,1])
+BiocManager::install(toinstallBioC)
+```
+
+## [STEP 1] Install AclustsCCA R package from github
+
+Now, one should be able to load `AclustsCCA` R package in R.
+```{r, warning=F, message=F}
+devtools::install_github("https://github.com/jennyjyounglee/AclustsCCA")
+library("AclustsCCA")
+```
+
+## [STEP 1] A-clustering
+
+**References** 
+
+* A-clustering paper: Sofer, T., Schifano, E. D., Hoppin, J. A., Hou, L., & Baccarelli, A. A. (2013). A-clustering: a novel method for the detection of co-regulated methylation regions, and regions associated with exposure. Bioinformatics, 29(22), 2884-2891. (https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true)
+
+* A-clustering code in github: We use Aclust R package to implement A-clustering. (https://github.com/tamartsi/Aclust)
+
+**Example data from `Aclust` R package**
+
+* `annot.7`: Annotation for the probes on chromosome 7 in the Illumina 450K chip, created using the package IlluminaHumanMethylation450k.db from Bioconductor. Imbedded in `Aclust` R package
+<!-- * `betas.7`: Processed and normalized methylation data (beta values) from chromosome 7 from a study of 80 pesticides applicators.  This data set can be used to experiment with using the clustering function and analysis pipeline. We use correlation structure of `betas.7` to generate data -->
+* `generate.data()`: This function will create exposure data (p=5) and methylation data (q=14) from normal distribution where first three metals (Metal 1-3) are associated with a single DMR region with three CpG sites ("cg03120555","cg04952627","cg10251229").
+
+```{r}
+data(annot.7) # row: CpG sites
+str(annot.7)
+
+data <- generate.data(n=500,p=5)
+DATA_X <- data$DATA_X # row: subjects (n), column: Metals (p)
+str(DATA_X)
+
+DATA_Y <- data$DATA_Y # row: subjects (n), column: CpG sites (q)
+str(DATA_Y)
+```
+
+**Implementation of Adjacent Clustering (A-clustering)**
+
+* `dist.type`: Type of similarity distance function. "spearman", "pearson" (correlation measures) or "euclid". 
+* `method`: Type of clustering function. "single", "complete" or "average". 
+* `dist.thresh`: A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. Corresponds to $\bar{D}$ in the paper.
+* `bp.thresh.clust`: Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to $\bar{d}_{bp}$ in the paper.
+* `bp.merge`: A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to $\underline{d}_{bp}$ in the paper.
+
+```{r}
+dist.type <- "pearson"
+method <-"average"
+dist.thresh <-0.2
+bp.thresh.clust <-1000
+bp.merge <-999
+
+clusters.list <- assign.to.clusters(betas=t(DATA_Y), annot=annot.7,
+                                    dist.type = dist.type,
+                                    method = method,
+                                    dist.thresh = dist.thresh,
+                                    bp.thresh.clust = bp.thresh.clust,
+                                    bp.merge = bp.merge)
+clusters.list
+
+TABLE1 <- summary.Aclustering(clusters.list=clusters.list,annot=annot.7)
+TABLE1
+```
+
+
+## [STEP 2] Sparse CCA
+
+**References** 
+
+* Sparse CCA paper: Sparse Canonical Correlation Analysis: Mai, Q., & Zhang, X. (2019). An iterative penalized least squares approach to sparse canonical correlation analysis. Biometrics, 75(3), 734-744. (https://onlinelibrary.wiley.com/doi/full/10.1111/biom.13043)
+
+* Robust Sparse CCA paper: Wilms, I., & Croux, C. (2016). Robust sparse canonical correlation analysis. BMC systems biology, 10(1), 1-13. (https://bmcsystbiol.biomedcentral.com/articles/10.1186/s12918-016-0317-9)
+
+* Fast permutation test paper: Gandy, A., & Hahn, G. (2014). MMCTest—a safe algorithm for implementing multiple Monte Carlo tests. Scandinavian Journal of Statistics, 41(4), 1083-1101. (https://onlinelibrary.wiley.com/doi/full/10.1111/sjos.12085)
+
+**Implementation of Sparse CCA (sCCA)**
+
+We implement Sparse CCA (sCCA) on each cluster identified by A-clustering. Note that, in the real data, we use partial residuals to account for confounding. In this example, we assume there is no confounding effect.
+
+* `Xmethod`: penalty function for $X$. "lasso" (LASSO), "alasso" (adaptive LASSO), "gglasso" (Group LASSO), or "SGL" (Sparse Group LASSO). 
+* `Ymethod`: penalty function for $Y$. "lasso" (LASSO), "alasso" (adaptive LASSO), "gglasso" (Group LASSO), "SGL" (Sparse Group LASSO), "SLR" (Simple Linear Regression). Since the size of clusters identified by A-clustering is small (median of size 2), we consider clusters identified by A-clustering to be potential DMR region and suggest not to penalize the outcome (use "SLR").
+* `maxnum`: maximum total number of permutations.
+* `maxB`: maximum number of permutations to run for each cluster.
+
+```{r}
+# We are only interested in clusters (non-sigletons)
+clusters.list <- clusters.list[sapply(clusters.list,length)!=1] 
+# True DMR region (Cluster 3) is associated with Metal 1-3
+TRUE.CpGs <- c("cg03120555","cg04952627","cg10251229")
+cat("Cluster ", which(sapply(clusters.list,function(x) any(x %in% TRUE.CpGs))), " is the true cluster \n")
+
+# Settings for sCCA
+Xmethod <- "lasso"
+Ymethod <- "SLR"
+maxnum <- length(clusters.list)*1000
+maxB <- 300
+group.idx <- NULL # For lasso or adaptive lasso, no need to define grouping structure
+# group.idx <- c(1,1,2,2,3) # For SGL or group lasso, need to define grouping structure
+
+# Define temporary filepath to save permutation result (as it may take several days)
+permute.tmp.filepath <- file.path(getwd(),paste("AclustsCCA_Permute_tmp_maxB",maxB,".RData",sep=""))
+
+# Run SparseCCA
+RESULT <- SparseCCA.permute(clusters.list=clusters.list,
+                            Y=DATA_Y,
+                            X=DATA_X,
+                            Xmethod=Xmethod,
+                            Ymethod=Ymethod,
+                            group.idx=group.idx,
+                            maxnum=maxnum,
+                            maxB=maxB,
+                            permute.tmp.filepath=permute.tmp.filepath)
+RESULT$sampler.result # summary of permutation test
+RESULT$sampler.result@num # number of permutations ran for each cluster
+RESULT$sampler.result@g # number of exceedance for each cluster
+```
+
+There is still unclassified hypothesis and we would like to run more permutations.
+```{r}
+# Increased the number of maxB
+maxnum <- length(clusters.list)*1000
+maxB.new <- 2000
+
+# Define temporary filepath to save new permutation result (as it may take several days)
+permute.tmp.filepath <- file.path(getwd(),paste("AclustsCCA_Permute_tmp_maxB",maxB.new,".RData",sep=""))
+
+# Run SparseCCA
+RESULT2 <- SparseCCA.permute.cont(SparseCCA.permute.result=RESULT,
+                                  Y=DATA_Y,
+                                  X=DATA_X,
+                                  maxnum=maxnum,
+                                  maxB=maxB.new,
+                                  permute.tmp.filepath=permute.tmp.filepath)
+RESULT2$sampler.result # summary of permutation test
+RESULT2$sampler.result@num # number of permutations ran for each cluster
+RESULT2$sampler.result@g # number of exceedance for each cluster
+RESULT2$sampler.result@A # Cluster 3 has been rejected
+```
+Summarize the result
+```{r}
+TABLE2 <- summary.SparseCCA(sampler.result=RESULT2$sampler.result,
+                            ALPHA.observed=RESULT2$ALPHA.observed,
+                            BETA.observed=RESULT2$BETA.observed,
+                            cancors.observed=RESULT2$cancors.observed,
+                            annot=annot.7,
+                            n.top=1)
+TABLE2 # Cluster 3 is associated with Metal 1-3 with 
+```
+
+## Notes
+
+**Implementation of Adjacent Clustering (A-clustering)**
+
+The below parameter settings are the parameters that was chosen to be optimal based on the A-clustering paper. I personally used spearman correlation to deal with non-linear relationship and varied `dist.thresh` to be $0.2$ and $0.3$.
+```{r}
+dist.type <- "pearson"
+method <-"average"
+dist.thresh <-0.2
+bp.thresh.clust <-1000
+bp.merge <-999
+```
+
+**Implementation of Sparse CCA (sCCA)**
+
+In this generated data, the problem is pretty straightforward as (1) canonical correaltion is strong and (2) we have only a few of cluster (i.e. a few multiple testings). Thus, in this example, we were able to see that our true cluster (Cluster 3) has been rejected and other two clusters are non-rejected.
+
+However, in the real methylation data and its association with metals, the problem gets more difficult as (1) the canonical correlation is expected to be weaker and (2) the number of clusters increases (e.g. 8000 clusters) as we are interested in epigenome-wide DNA methylation. However, with the use of permutation test, it is very difficult to actually reach the multiple testing threshold (e.g. for Bonferroni correction, 0.05/8000=6.25e-06) and you need run enough permutations to make to actually reach the threshold (e.g. $10^6$ permutations for each cluster, which is usually not computationally feasible). Thus, in the real data, we will often observe that most of the clusters are non-rejected and a few of them are unclassified. To deal with this, we calculate permutation p-value of all hypothesis after enough permutations and reject the clusters after Benjamini-Hochberge correction. `summary.SparseCCA` function has an option `n.top` which prints `n.top` number of clusters with smallest p-value (including ties). Also, in the output of `summary.SparseCCA`, you can check rejection status based on `reject` indicator (1/0).
+
+If there exists strong correlation between exposures (e.g. in our case, we had grouping structures in exposures withvery strong correlation for some of $PM_{2.5}$ components.), we suggest using `SGL` (moderate speed) or `Group LASSO` (much slower). In your case, I think it will be fine to use `LASSO` penalty as the correlation doesn't seem as high and also it is the fastest to run. In my analysis, I ran maximum $80,000$ permutations (i.e.`maxB`=80000) for each cluster. Make sure to make `maxnum` large enough so the analysis doesn't stop before reaching `maxB`.
+```{r}
+Xmethod <- "lasso"
+Ymethod <- "SLR"
+maxnum <- length(clusters.list)*500 
+maxB <- 80000
+group.idx <- NULL 
+```
+
+
+
+
+
