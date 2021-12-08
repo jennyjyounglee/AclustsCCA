@@ -66,15 +66,12 @@ library("AclustsCCA")
 * `generate.data()`: This function will create exposure data (p=5) and methylation data (q=14) from normal distribution where first three metals (Metal 1-3) are associated with a single DMR region with three CpG sites ("cg03120555","cg04952627","cg10251229").
 
 ```{r}
-data(annot.7) # row: CpG sites
-str(annot.7)
+data(annot) # row: CpG sites
+data.list <- generate.data(n=500)
+str(data.list)
 
-data <- generate.data(n=500,p=5)
-DATA_X <- data$DATA_X # row: subjects (n), column: Metals (p)
-str(DATA_X)
-
-DATA_Y <- data$DATA_Y # row: subjects (n), column: CpG sites (q)
-str(DATA_Y)
+DATA.X <- data.list$DATA.X # row: subjects (n), column: Metals (p)
+DATA.Y <- data.list$DATA.Y # row: subjects (n), column: CpG sites (q)
 ```
 
 **Implementation of Adjacent Clustering (A-clustering)**
@@ -88,19 +85,19 @@ str(DATA_Y)
 ```{r}
 dist.type <- "pearson"
 method <-"average"
-dist.thresh <-0.2
-bp.thresh.clust <-1000
-bp.merge <-999
+thresh.dist <-0.2
+max.dist <-1000
+bp.thresh.dist <-999
 
-clusters.list <- assign.to.clusters(betas=t(DATA_Y), annot=annot.7,
+clusters.list <- assign.to.clusters(betas=t(DATA.Y), annot=annot,
                                     dist.type = dist.type,
                                     method = method,
-                                    dist.thresh = dist.thresh,
-                                    bp.thresh.clust = bp.thresh.clust,
-                                    bp.merge = bp.merge)
+                                    thresh.dist = thresh.dist,
+                                    bp.thresh.dist = bp.thresh.dist,
+                                    max.dist = max.dist)
 clusters.list
 
-TABLE1 <- summary.Aclustering(clusters.list=clusters.list,annot=annot.7)
+TABLE1 <- summary.Aclustering(clusters.list=clusters.list,annot=annot)
 TABLE1
 ```
 
@@ -133,10 +130,10 @@ cat("Cluster ", which(sapply(clusters.list,function(x) any(x %in% TRUE.CpGs))), 
 
 # Settings for sCCA
 Xmethod <- "lasso"
-Ymethod <- "SLR"
+Ymethod <- "OLS"
 maxnum <- length(clusters.list)*1000
 maxB <- 300
-group.idx <- NULL # For lasso or adaptive lasso, no need to define grouping structure
+X.groupidx <- NULL # For lasso or adaptive lasso, no need to define grouping structure
 # group.idx <- c(1,1,2,2,3) # For SGL or group lasso, need to define grouping structure
 
 # Define temporary filepath to save permutation result (as it may take several days)
@@ -144,14 +141,17 @@ permute.tmp.filepath <- file.path(getwd(),paste("AclustsCCA_Permute_tmp_maxB",ma
 
 # Run SparseCCA
 RESULT <- SparseCCA.permute(clusters.list=clusters.list,
-                            Y=DATA_Y,
-                            X=DATA_X,
+                            X=DATA.X,
+                            Y=DATA.Y,
                             Xmethod=Xmethod,
                             Ymethod=Ymethod,
-                            group.idx=group.idx,
                             maxnum=maxnum,
                             maxB=maxB,
                             permute.tmp.filepath=permute.tmp.filepath)
+
+
+# SparseCCA.permute <- function(clusters.list,X,Y,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,Y.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,permute.tmp.filepath=NULL){
+
 RESULT$sampler.result # summary of permutation test
 RESULT$sampler.result@num # number of permutations ran for each cluster
 RESULT$sampler.result@g # number of exceedance for each cluster

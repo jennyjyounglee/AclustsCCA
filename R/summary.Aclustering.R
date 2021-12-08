@@ -63,7 +63,8 @@ summary.Aclustering <- function(clusters.list,annot,digits=2){
   n.clust <- DAT.clusters[clust.size!=1,unique(clust.size),by="ClustIdx"][,uniqueN(ClustIdx)]
   n.single <- DAT.clusters[clust.size==1,unique(clust.size),by="ClustIdx"][,uniqueN(ClustIdx)]
   # (2-3) Number of CpG sites in clusters (min, median, max)
-  n.CpGs.in.clust <- DAT.clusters[clust.size!=1,unique(clust.size),by="ClustIdx"][, quantile(V1,c(0,0.5,1))]
+  n.CpGs.in.clust <- DAT.clusters[clust.size!=1,unique(clust.size),by="ClustIdx"]
+  n.CpGs.in.clust.summary <- n.CpGs.in.clust[, quantile(V1,c(0,0.5,1))]
   # (2-4) Base-pair distance between extremes (min, median, max)
   summary.dist <- DAT.clusters[clust.size!=1,list("distance"=max(Coordinate_37)-min(Coordinate_37)),by=c("ClustIdx")]
   bp.dist <- quantile(summary.dist$distance,c(0,0.5,1))
@@ -90,8 +91,8 @@ summary.Aclustering <- function(clusters.list,annot,digits=2){
     c("Total number of sites", n.sites),
     c("Number of singletons", n.single),
     c("Number of clusters (at least two sites)", n.clust),
-    c("Number of CpG sites that are clustered ", paste0(sum(clust.size.vec[clust.size.vec!=1])," (",round(sum(clust.size.vec[clust.size.vec!=1])/n.sites * 100,digits),"%)",sep="")),
-    c("Number of CpG sites in cluster (min, median, max)", paste0("(",paste0(n.CpGs.in.clust,collapse=","),")",sep="")),
+    c("Number of CpG sites that are clustered ", paste0(sum(n.CpGs.in.clust$V1)," (",round(sum(n.CpGs.in.clust$V1)/n.sites * 100,digits),"%)",sep="")),
+    c("Number of CpG sites in cluster (min, median, max)", paste0("(",paste0(n.CpGs.in.clust.summary,collapse=","),")",sep="")),
     c("Base-pair distance between extremes (min, median, max) ", paste0("(",paste0(bp.dist,collapse=","),")",sep="")),
     c("(1) Clusters associated with a single refernece gene ", paste0(n.gene.1,"/",n.clust," (",round(n.gene.1/n.clust * 100,digits),"%)",sep="")),
     c("(2) Clusters associated with a single CpG Island ", paste0(n.island.1,"/",n.clust," (",round(n.island.1/n.clust * 100,digits),"%)",sep="")),

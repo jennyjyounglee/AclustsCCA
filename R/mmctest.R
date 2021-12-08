@@ -1,3 +1,52 @@
+
+#' @title
+#' Sequential implementation of the Monte Carlo test with p-value buckets.
+#'
+#' @description
+#' Implementation of the Robbins-Lai (mctest.RL) and SIMCTEST (mctest.simctest) approaches to compute a decision interval (and decision) with respect to several thresholds/ p-value buckets. The function "mctest" is a wrapper function for both the Robbins-Lai and the SIMCTEST approach which calls one of the two using an additional parameter "method" (method="simctest" for SIMCTEST and method="RL" for Robbins-Lai).
+#'
+#' @include simctest.R
+#'
+#' ### INPUT
+#' @param gen: function that performs one sampling step. Returns 0 (sampled test statistic does not exceed the observation) or 1 (sampled test static exceeds the observation)
+#' @param method: which method to use for stopping
+#' @param J: p-value buckets to use. A matrix with two rows, each column describes an interval bucket. Column names give the code for the interval bucket. Defaults to Jstar.
+#' @param epsilon: error bound
+#' @param batch: initial number of samples to use before checking for stopping
+#' @param batchincrement: factor by which the batch size gets multiplied after each step. 1 would mean no increment
+#' @param maxbatch: maximum batch size
+#' @param x: object of type "mctestres"
+#'
+#' @return
+#' \code{mctest}, \code{mctest.RL} and \code{mctest.simctest} all return an object of class type \code{mctestres}, which has a print function (\code{print.mctestres}).
+#' An object of class \code{mctestres} is a list with the following components: step (total batched number of samples drawn), decision.interval (interval for the p-value), decision (expressing significance), est.p (an estimate of the p-value) and realn (the actual number of samples taken without batching).
+#'
+#' @examples
+#' Example used in the above paper
+#' dat <- matrix(nrow=5,ncol=7,byrow=TRUE,
+#'               c(1,2,2,1,1,0,1, 2,0,0,2,3,0,0, 0,1,1,1,2,7,3, 1,1,2,0,0,0,1, 0,1,1,1,1,0,0))
+#' loglikrat <- function(data){
+#'   cs <- colSums(data)
+#'   rs <- rowSums(data)
+#'   mu <- outer(rs,cs)/sum(rs)
+#'   2*sum(ifelse(data<=0.5, 0,data*log(data/mu)))
+#' }
+#' resample <- function(data){
+#'   cs <- colSums(data)
+#'   rs <- rowSums(data)
+#'   n <- sum(rs)
+#'   mu <- outer(rs,cs)/n/n
+#'   matrix(rmultinom(1,n,c(mu)),nrow=dim(data)[1],ncol=dim(data)[2])
+#' }
+#' t <- loglikrat(dat);
+#' # function to generate samples
+#' gen <- function(){loglikrat(resample(dat))>=t}
+#'
+#' #using simctest
+#' mctest(gen)
+#' mctest.simctest(gen)
+#' mctest.RL(gen)
+
 # source("simctest/R/simctest.r");
 
 # mmctest -- Multiple Monte-Carlo Tests
@@ -9,11 +58,20 @@
 # export: mmctest, hBH, hPC, hIndep
 # some FDR controlling procedures
 
-# FDR control by Benjamini-Hochberg
+# FDR control by Benjamini-Hochberg: This takes into account of ties
 hBH <- function(p, threshold) {
-
-    return(rank(p) <= max( c(which(sort(p)<=(1:length(p))*threshold/length(p)),-1) ));
+  p.rank <- match(p, sort(unique(p)))
+  sort.p.rank <- sort(p.rank)
+  return(
+    p.rank <= max( c(sort.p.rank[sort(p)<=(sort.p.rank*threshold/length(p))],-1))
+  );
 }
+
+# # FDR control by Benjamini-Hochberg
+# hBH <- function(p, threshold) {
+#
+#     return(rank(p) <= max( c(which(sort(p)<=(1:length(p))*threshold/length(p)),-1) ));
+# }
 
 # FDR control by Pounds&Cheng
 hPC <- function(p, threshold) {
@@ -152,7 +210,7 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	    prior_beta <- 1+num-g;
 	    rej <- rowSums( replicate(obj@R, obj@h(rbeta(m,prior_alpha,prior_beta),obj@threshold)) );
 	    sampleprob <- pmin(rej/obj@R,1-rej/obj@R);
-	    
+
 	    # correction
 	    if(sum(sampleprob)==0) { sampleprob <- rep(1,m); }
 
@@ -196,7 +254,7 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	A <- which(obj@h(pu, obj@threshold));
 	C <- which(obj@h(pl, obj@threshold));
 	B <- setdiff(C, A);
-	
+
 	it <- it+1;
 
 	copying <- 1;
@@ -273,8 +331,8 @@ setMethod("show", signature(object="mmctestres"), function(object) {
 
 setGeneric("pEstimate", def=function(obj){standardGeneric("pEstimate")})
 setMethod("pEstimate", signature(obj="mmctestres"), function(obj) {
-
-    return((obj@g+1)/(obj@num+1));
+    return(obj@g/obj@num);
+    # return((obj@g+1)/(obj@num+1));
   }
 )
 
@@ -365,3 +423,46 @@ mmctest <- function(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F, R=1000)
   obj@internal$h=h;
   return(obj);
 }
+
+# #######
+# # sCCA sampler
+# setClass("SCCASampler", contains="mmctSamplerGeneric",
+#          representation=representation(data="list"))
+#
+# setMethod("getSamples", signature(obj="SCCASampler"),
+#           function(obj, ind, n) {
+#             X <- obj@data$X # n X p
+#             Y <- obj@data$Y # n X q
+#             clusters.list <- obj@data$clusters.list
+#             TestStat.observed <- obj@data$TestStat.observed
+#             settings <- obj@data$settings
+#
+#             result <- matrix(NA,nrow=length(ind),ncol=n[1]) # number of hypothesis X number of permutations
+#             for(b in 1:n[1]) { # for each permutation
+#               # cat("permutation b = ",b,", hypothesis = ",length(ind),"\n")
+#               index <- sample(1:nrow(X), size = nrow(X), replace = FALSE)
+#               X_permute<-X[index,]
+#
+#               for(i in 1:length(ind)){
+#                 Y.subset <- Y[, clusters.list[[i]]] # n X q matrix
+#                 result[i,b] <- SparseCCA(X=X_permute,Y=Y.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,Y.groupidx=settings$Y.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv)$cancors.spearman
+#               }
+#             }
+#
+#             # RETURN: the number of exceedness for each hypothesis
+#             if(length(ind) <= 1){
+#               exceed <- sum(result > TestStat.observed[ind])
+#             }else{
+#               exceed <- apply(apply(result,2,function(x) 1*(x > TestStat.observed[ind])),1,sum)
+#             }
+#
+#             return(exceed)
+#           }
+# )
+#
+#
+# setMethod("getNumber", signature(obj="SCCASampler"),
+#           function(obj) {
+#             return(length(obj@data$clusters.list));
+#           }
+# )

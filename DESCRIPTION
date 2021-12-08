@@ -8,3 +8,19 @@ Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: What license is it under?
 Encoding: UTF-8
+RoxygenNote: 7.1.2
+Collate: 
+    'CCA.R'
+    'simctest.R'
+    'mmctest.R'
+    'SCCASampler.R'
+    'Sparse.alternating.R'
+    'SparseCCA.R'
+    'SparseCCA.permute.R'
+    'SparseCCA.permute.cont.R'
+    'generate.data.R'
+    'mmctest_old.R'
+    'simctest_old.R'
+    'summary.Aclustering.R'
+    'summary.SparseCCA.R'
+    'utilis.R'

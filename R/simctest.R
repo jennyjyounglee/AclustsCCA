@@ -1,3 +1,20 @@
+
+#' @title
+#' Sequential implementation of Monte Carlo tests
+#'
+#' @description
+#' Wrapper function for convenient use of the sequential implementation of the Monte Carlo test.
+#' Downloaded from simctest_2.6.tar.gz. This function is loaded to run \code{\link{mmctest}}.
+#'
+#'
+#' ### INPUT
+#' @param gensample: function that performs one sampling step. Returns 0 (sampled test statistic does not exceed the observation) or 1 (sampled test static exceeds the observation).
+#' @param level: level passed to \code{\link{getalgonthefly}}
+#' @param epsilon: error bound epsilon passed to \code{\link{getalgonthefly}}
+#' @param maxsteps: maximal number of steps to take
+#'
+#'
+
 #Class sampalg
 setClass("sampalg", representation(internal="environment"));
 
@@ -25,7 +42,7 @@ setMethod("getboundaryandprob", signature(alg="sampalgPrecomp"),
                  L=alg@internal$L[1:n],
                  n=alg@internal$n[w],
                  Sn=alg@internal$Sn[w],
-                 prob=alg@internal$prob[w])            
+                 prob=alg@internal$prob[w])
           })
 
 
@@ -63,7 +80,7 @@ setMethod("extendbounds", signature(alg="sampalgPrecomp"),
               alg@internal$preverr <- x$preverr
               alg@internal$porig <- x$porig
               alg@internal$len <- length(alg@internal$U)
-            }   
+            }
           }
           )
 
@@ -112,7 +129,7 @@ setMethod("confint", signature(object="sampalgres",parm="missing"),
               estlo <- estup
             }
 
-            
+
             nsteps=as.integer(max(400,object@steps+5*max(1/object@alg@internal$level,
               1/(1-object@alg@internal$level))))
             while(1){
@@ -121,11 +138,11 @@ setMethod("confint", signature(object="sampalgres",parm="missing"),
                 break;
               nsteps=as.integer(nsteps*1.5)
             }
-            
+
             B.Sn<- x$Sn
             B.n <- x$n
             B.prob <- x$prob
-            
+
 
             transf<-function(p,alpha,Sn,n,prob,target){
                                         #   exp/log is used to avoid problem with over/underruns
@@ -210,10 +227,10 @@ setMethod("cont", signature(data="sampalgres"),
                 batchsize <- formals(data@gen)[[1]]
               }
               i <- data@steps
-              while (i < data@steps+steps){                
+              while (i < data@steps+steps){
                 batchsize <- min(batchsize, data@steps+steps-i)
                 if ((i+batchsize)>data@alg@internal$len) extendbounds(data@alg,max(i+batchsize,data@alg@internal$len*1.5,100));
-                
+
                 posvec <- pos+cumsum(data@gen(batchsize))
                 U <- data@alg@internal$U[(i+1):(i+batchsize)]
                 L <- data@alg@internal$L[(i+1):(i+batchsize)]
@@ -246,15 +263,15 @@ setGeneric("getbounds",def=function(data) {standardGeneric("getbounds")})
 getindmax_getbounds <- function(data,start,Uest,Lest){
   alpha <- data@alg@internal$level
   epsilon <- data@alg@internal$epsilon
-  k <-data@alg@internal$halfspend  
-  n <-data@steps+1  
+  k <-data@alg@internal$halfspend
+  n <-data@steps+1
   target <- min(Uest-alpha,alpha - Lest)
   Delta <-function(x)sqrt(x*log((k+x)*(k+x-1)/(epsilon*k)))
-  f<- function(x)(Delta(x)+1)/x-target 
+  f<- function(x)(Delta(x)+1)/x-target
   xupper <- 2*n
   while (f(xupper)>0) xupper<-xupper*2
   indmax <- ceiling(uniroot(f,interval=c(n,xupper))$root)
-  if (start<=1e6&&epsilon==1e-3&&alpha==0.05&&k==1000) 
+  if (start<=1e6&&epsilon==1e-3&&alpha==0.05&&k==1000)
     indmax <- min(indmax,start+2000) #precomputed - see article
   indmax
 }
@@ -263,7 +280,7 @@ getbounds_conservativebound <- function(data,n){
   epsilon <- data@alg@internal$epsilon
   k <-data@alg@internal$halfspend
   gamma <- (sqrt(-max(n)/2*log(epsilon*k/(k+max(n))/(k+max(n)-1)))+1)/max(n)
-  c(alpha-gamma,alpha+gamma)  
+  c(alpha-gamma,alpha+gamma)
 }
 setMethod("getbounds", signature(data="sampalgres"),
           function(data){
@@ -276,7 +293,7 @@ setMethod("getbounds", signature(data="sampalgres"),
                 #find first potential stopping times
                 nteststart <- n+1
                 while(TRUE){
-                  ntest <- max(ceiling(nteststart*1.2),nteststart+100)      
+                  ntest <- max(ceiling(nteststart*1.2),nteststart+100)
                   U <- getU(data@alg,nteststart:ntest)
                   stoppos <- U<=Sn+nteststart:ntest-n
                   if (any(stoppos)) break;
@@ -287,7 +304,7 @@ setMethod("getbounds", signature(data="sampalgres"),
 
                 nteststart <- n+1
                 while(TRUE){
-                  ntest <- max(ceiling(nteststart*1.2),nteststart+100)      
+                  ntest <- max(ceiling(nteststart*1.2),nteststart+100)
                   L <- getL(data@alg,nteststart:ntest)
                   stoppos <- L>=Sn
                   if (any(stoppos)) break;
@@ -297,7 +314,7 @@ setMethod("getbounds", signature(data="sampalgres"),
 
 
                 indmaxorig <- getindmax_getbounds(data,max(kU,kL),getU(data@alg,kU-1)/kU,(getL(data@alg,kL-1)+1)/kL)
-                indmax <- min(indmaxorig,max(2*n,n+1e5)) #bound on the number of steps looked forward 
+                indmax <- min(indmaxorig,max(2*n,n+1e5)) #bound on the number of steps looked forward
                 indL <- kL:indmax
                 indU <- kU:indmax
                 if (indmax<indmaxorig)
@@ -325,7 +342,7 @@ setMethod("show", signature(object="sampalgres"),
               b <- getbounds(object)
               cat("Final estimate will be in [",b[1], ",", b[2],"]\n")
               cat("Current estimate of the p.value:",object@pos/object@steps,"\n")
-            } 
+            }
             cat("Number of samples:",object@steps,"\n")
           }
           )
@@ -343,7 +360,7 @@ getalgonthefly <- function(level=0.05,epsilon=1e-3,halfspend=1000){
   sampalg@internal$level <- level
   sampalg@internal$epsilon <- epsilon
   sampalg@internal$halfspend <- halfspend
-  sampalg@internal$stepsize <- as.integer(500);  
+  sampalg@internal$stepsize <- as.integer(500);
   sampalg
 }
 
@@ -359,9 +376,9 @@ setMethod("getboundaryandprob", signature(alg="sampalgonthefly"),
                       preverr=as.double(c(0.,0.)),
                       maxerr=alg@internal$spending(2:n),
                       returnstopprob=as.integer(1) )
-            
-            
-            list(U=x$U,L=x$L,n=x$n+2,Sn=x$Sn,prob=x$prob)            
+
+
+            list(U=x$U,L=x$L,n=x$n+2,Sn=x$Sn,prob=x$prob)
           })
 
 setMethod("run", signature(alg="sampalgonthefly"),
@@ -467,14 +484,14 @@ setMethod("getbounds", signature(data="sampalgontheflyres"),
                 }
                 getL <- function(allind){
                   x <- extendtoind(max(allind))
-                  x$L[allind-min(x$n)+1]                  
+                  x$L[allind-min(x$n)+1]
                 }
                 n <-data@steps
                 Sn <- data@pos
                 #find first potential stopping times
                 nteststart <- n+1
                 while(TRUE){
-                  ntest <- max(ceiling(nteststart*1.2),nteststart+100)      
+                  ntest <- max(ceiling(nteststart*1.2),nteststart+100)
                   U <- getU(nteststart:ntest)
                   stoppos <- U<=Sn+nteststart:ntest-n
                   if (any(stoppos)) break;
@@ -485,7 +502,7 @@ setMethod("getbounds", signature(data="sampalgontheflyres"),
 
                 nteststart <- n+1
                 while(TRUE){
-                  ntest <- max(ceiling(nteststart*1.2),nteststart+100)      
+                  ntest <- max(ceiling(nteststart*1.2),nteststart+100)
                   L <- getL(nteststart:ntest)
                   stoppos <- L>=Sn
                   if (any(stoppos)) break;
@@ -495,7 +512,7 @@ setMethod("getbounds", signature(data="sampalgontheflyres"),
 
 
                 indmaxorig <- getindmax_getbounds(data,max(kU,kL),getU(kU-1)/kU,(getL(kL-1)+1)/kL)
-                indmax <- min(indmaxorig,max(2*n,n+1e5)) #bound on the number of steps looked forward 
+                indmax <- min(indmaxorig,max(2*n,n+1e5)) #bound on the number of steps looked forward
                 indL <- kL:indmax
                 indU <- kU:indmax
                 if (indmax<indmaxorig)

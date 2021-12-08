@@ -55,7 +55,7 @@
 #'
 #'
 
-SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("lasso","alasso","SGL","SLR"),init.method="SVD",X.groupidx=NULL,Y.groupidx=NULL,standardize=T,max.iter=50,conv=5*10^-2){
+SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("lasso","alasso","SGL","OLS"),init.method="SVD",X.groupidx=NULL,Y.groupidx=NULL,standardize=T,max.iter=50,conv=5*10^-2){
   ### Function to perform Sparse Canonical Correlation Analysis using alternating regressions
 
   ### AUXILIARY FUNCTIONS
@@ -135,7 +135,7 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
     }
 
     # Estimating B conditional on A
-    if(Ymethod=="SLR"){
+    if(Ymethod=="OLS"){
       tmp.dat <- data.frame(Xtmp=X%*%AHAT_FINAL, Ytmp=Y)
       FIT.B<-lm(Xtmp~Y-1,tmp.dat)
       FIT.B$COEF_FINAL <- coef(FIT.B)
