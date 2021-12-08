@@ -23,28 +23,34 @@ SparseCCA(
 \item{Y}{: \eqn{n} by \eqn{q} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.}
 
 \item{Xmethod}{: penalty function for the exposure, i.e. penalty function when regressing Y onto X. Possible values are:
-- "lasso": Lasso
-- "alasso": Adaptive Lasso
-- "gglasso": Group Lasso
-- "SGL": Sparse Group Lasso}
+\itemize{
+\item "lasso": Lasso
+\item "alasso": Adaptive Lasso
+\item "gglasso": Group Lasso
+\item "SGL": Sparse Group Lasso
+}}
 
 \item{Ymethod}{: penalty function for the outcome, i.e. penalty function when regressing X onto Y. Possible values are:
-- "lasso": Lasso
-- "alasso": Adaptive Lasso
-- "gglasso": Group Lasso
-- "SGL": Sparse Group Lasso
-- "OLS": Ordinary Least Square}
+\itemize{
+\item "lasso": Lasso
+\item "alasso": Adaptive Lasso
+\item "gglasso": Group Lasso
+\item "SGL": Sparse Group Lasso
+\item "OLS": Ordinary Least Square
+}}
 
 \item{init.method}{: "Possible two values are:
-- "lasso": When high-dimensional exposure data (i.e. n<p)
-- "OLS": Ordinary Least Square
-- "SVD": Singular Value Decomposition}
+\itemize{
+\item "lasso": When high-dimensional exposure data (i.e. n<p)
+\item "OLS": Ordinary Least Square
+\item "SVD": Singular Value Decomposition
+}}
 
-\item{X.groupidx}{: A vector of length \eqn{p} that indicates grouping structure of exposure `X`}
+\item{X.groupidx}{: A vector of length \eqn{p} that indicates grouping structure of exposure \code{X}}
 
-\item{Y.groupidx}{: A vector of length \eqn{q} that indicates grouping structure of outcome `Y`}
+\item{Y.groupidx}{: A vector of length \eqn{q} that indicates grouping structure of outcome \code{Y}}
 
-\item{standardize}{: A standardization (center and scale) of exposure `X` and outcome `Y`}
+\item{standardize}{: A standardization (center and scale) of exposure \code{X} and outcome \code{Y}}
 
 \item{max.iter}{: A maximum number of iterations}
 
@@ -52,21 +58,22 @@ SparseCCA(
 }
 \value{
 The function returns a list of 6 objects according to the following order:
-  - ALPHA          : An estimated canonical vector of length \eqn{p} corresponding to the exposure data \eqn{X}
-  - BETA           : An estimated canonical vector of length \eqn{q} corresponding to the outcome data \eqn{Y}
-  - U_ALL          : An estimated canonical variates \eqn{X\alpha} corresponding to the exposure data \eqn{X} which is a vector of length \eqn{n}
-  - V_ALL          : An estimated canonical variates \eqn{Y\beta} corresponding to the outcome data \eqn{Y} which is a vector of length \eqn{n}
-  - lamdbaA        : A numeric value of the sparsity parameter lambdaA
-  - lamdbaB        : A numeric value of the sparsity parameter lambdaB
-  - it             : Number of iterations until convergence
+\itemize{
+\item ALPHA          : An estimated canonical vector of length \eqn{p} corresponding to the exposure data \eqn{X}
+\item BETA           : An estimated canonical vector of length \eqn{q} corresponding to the outcome data \eqn{Y}
+\item U_ALL          : An estimated canonical variates \eqn{X\alpha} corresponding to the exposure data \eqn{X} which is a vector of length \eqn{n}
+\item V_ALL          : An estimated canonical variates \eqn{Y\beta} corresponding to the outcome data \eqn{Y} which is a vector of length \eqn{n}
+\item lamdbaA        : A numeric value of the sparsity parameter lambdaA
+\item lamdbaB        : A numeric value of the sparsity parameter lambdaB
+\item it             : Number of iterations until convergence
+}
 }
 \description{
 Implement an iterative penalized least squares approach to sparse canonical correlation analysis (SparseCCA)
 with various penalty functions. Modified Wilms, Ines, and Christophe Croux. "Robust sparse canonical correlation analysis." BMC systems biology 10.1 (2016): 1-13.
 The original code is accessible https://sites.google.com/view/iwilms/software?authuser=0
-
-
-### INPUT
+\subsection{INPUT}{
+}
 }
 \examples{
 data.list <- generate.data(n=500)

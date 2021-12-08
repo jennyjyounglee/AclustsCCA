@@ -4,23 +4,46 @@ Title: A Cluster Based Sparse Canonical Correlation Analayis to Test Association
 Version: 0.1.0
 Author: Jenny Lee
 Maintainer: Jenny Lee <jenny_lee@g.harvard.edu>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Provides a framework for estimating the assocation between multiple exposures and high-dimensional DNA methylation outcomes.
 License: What license is it under?
+Language: en-US
+Imports: 
+    stats,
+    mvtnorm,
+    glmnet,
+    gglasso,
+    SGL,
+    MASS,
+    pls,
+    Aclust,
+    data.table,
+    dplyr,
+    mvtnorm,
+    Matrix,
+    parallel,
+    doParallel,
+    foreach,
+    doSNOW
 Encoding: UTF-8
 RoxygenNote: 7.1.2
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+Depends: 
+    R (>= 4.1.1)
 Collate: 
-    'CCA.R'
+    'AclustsCCA.R'
+    'AclustsCCA.cont.R'
     'simctest.R'
     'mmctest.R'
-    'SCCASampler.R'
+    'AclustsCCASampler.R'
+    'CCA.R'
     'Sparse.alternating.R'
     'SparseCCA.R'
-    'SparseCCA.permute.R'
-    'SparseCCA.permute.cont.R'
     'generate.data.R'
-    'mmctest_old.R'
-    'simctest_old.R'
     'summary.Aclustering.R'
-    'summary.SparseCCA.R'
+    'summary.AclustsCCA.R'
     'utilis.R'

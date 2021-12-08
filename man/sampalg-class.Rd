@@ -16,7 +16,6 @@
 \description{
 Wrapper function for convenient use of the sequential implementation of the Monte Carlo test.
 Downloaded from simctest_2.6.tar.gz. This function is loaded to run \code{\link{mmctest}}.
-
-
-### INPUT
+\subsection{INPUT}{
+}
 }

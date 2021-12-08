@@ -10,37 +10,39 @@ summary.Aclustering(clusters.list, annot, digits = 2)
 \item{clusters.list}{: A list of clusters with CpG sites, each item is a cluster that contains a set of probes}
 
 \item{annot}{: A preloaded annotation file that includes columns the below name. For more information, \url{https://support.illumina.com/content/dam/illumina-support/documents/downloads/productfiles/methylationepic/infinium-methylationepic-manifest-column-headings.pdf}.
-- IlmnID: The IlmnID
-- Coordinate_37: Chromosomal coordinates of the CpG
-- Islands_Name: Chromosomal coordinates of the CpG Island
-- Relation_to_Island: The location of the CpG relative to the CpG island
-- UCSC_RefGene_Name: Target gene name(s)}
+\itemize{
+\item IlmnID: The IlmnID
+\item Coordinate_37: Chromosomal coordinates of the CpG
+\item Islands_Name: Chromosomal coordinates of the CpG Island
+\item Relation_to_Island: The location of the CpG relative to the CpG island
+\item UCSC_RefGene_Name: Target gene name(s)
+}}
 
 \item{digits}{: Show rounded values to the specified number of decimal places}
 }
 \value{
 The function returns a table of summary characteristics:
-  - Total number of sites used for the analysis
-  - Number of singletons (a cluster with one CpG site)
-  - Number of clusters (a cluster with at least two sites)
-  - Number of CpG sites that are clustered
-  - Number of CpG sites in cluster (min, median, max)
-  - Base-pair distance between extremes (min, median, max)
-  - (1) Clusters associated with a single refernece gene
-  - (2) Clusters associated with a single CpG Island
-  - (3-1) Clusters associated with a CpG resort : at least one resort regions
-  - (3-2) Clusters associated with a CpG resort : at least two resort regions
-  - (3-3) Clusters associated with a CpG resort : one resort regions
-  - (3-4) Clusters associated with a CpG resort : two resort regions
-  - (3-5) Clusters associated with a CpG resort : three resort regions
+\itemize{
+\item Total number of sites used for the analysis
+\item Number of singletons (a cluster with one CpG site)
+\item Number of clusters (a cluster with at least two sites)
+\item Number of CpG sites that are clustered
+\item Number of CpG sites in cluster (min, median, max)
+\item Base-pair distance between extremes (min, median, max)
+\item (1) Clusters associated with a single refernece gene
+\item (2) Clusters associated with a single CpG Island
+\item (3-1) Clusters associated with a CpG resort : at least one resort regions
+\item (3-2) Clusters associated with a CpG resort : at least two resort regions
+\item (3-3) Clusters associated with a CpG resort : one resort regions
+\item (3-4) Clusters associated with a CpG resort : two resort regions
+\item (3-5) Clusters associated with a CpG resort : three resort regions
+}
 }
 \description{
 Implement an iterative penalized least squares approach to sparse canonical correlation analysis (SparseCCA)
 with various penalty functions
-
-
-
-### INPUT
+\subsection{INPUT}{
+}
 }
 \examples{
 library("IlluminaHumanMethylation450kanno.ilmn12.hg19")

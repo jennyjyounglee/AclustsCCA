@@ -272,6 +272,17 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	if((stopcrit$maxnum>0) && (sum(num)+length(B)*floor(1.25*currentBatch)>=stopcrit$maxnum)) { break; }
 	if((stopcrit$maxit>0) && (it>=stopcrit$maxit)) { break; }
 	if((stopcrit$elapsedsec>0) && (proc.time()[[3]]-timer>=stopcrit$elapsedsec)) { break; }
+	if((stopcrit$maxB>0) && (max(num)>=stopcrit$maxB)) { break; }
+
+
+	if(!is.null(permute.tmp.filepath)){
+	  SAMPLER.TMP.RESULT <- obj
+	  SAMPLER.TMP.RESULT@gensample@data$X <- NULL
+	  SAMPLER.TMP.RESULT@gensample@data$Y <- NULL
+	  SAMPLER.TMP.RESULT@gensample@data$clusters.list <- NULL
+
+	  save(SAMPLER.TMP.RESULT,file=permute.tmp.filepath)
+	}
       } # end while
     }, interrupt = function(interrupt){
       # finish copying if appropriate
@@ -302,17 +313,19 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 # cont offers four stopping criteria given as list "steps"
 # steps=list(maxit=0, maxnum=0, undecided=0, elapsedsec=0)
 # corresonding to a maximal number of iterations, maximal number of samples drawn, number of yet undecided hypotheses, elapsed time
-setMethod("cont", signature(data="mmctestres"), function(data, steps=list(maxit=0, maxnum=0, undecided=0, elapsedsec=0)) {
+# setMethod("cont", signature(data="mmctestres"), function(data, steps=list(maxit=0, maxnum=0, undecided=0, elapsedsec=0)) {
+setMethod("cont", signature(data="mmctestres"), function(data, steps=list(maxit=0, maxnum=0, undecided=0, elapsedsec=0, maxB=0)) {
 
-    if(length(setdiff(ls(steps),c("maxit","maxnum","undecided","elapsedsec")))>0) { stop("parameter steps contains invalid data"); }
+    if(length(setdiff(ls(steps),c("maxit","maxnum","undecided","elapsedsec","maxB")))>0) { stop("parameter steps contains invalid data"); }
 
-    if(length(steps)==0) { stopcrit <- list(maxit=0, maxnum=0, undecided=0, elapsedsec=0); }
+    if(length(steps)==0) { stopcrit <- list(maxit=0, maxnum=0, undecided=0, elapsedsec=0, maxB=0); }
     else {
       stopcrit <- list();
       if("maxit" %in% ls(steps)) { stopcrit<-c(stopcrit,maxit=steps$maxit); } else { stopcrit<-c(stopcrit,maxit=0); }
       if("maxnum" %in% ls(steps)) { stopcrit<-c(stopcrit,maxnum=steps$maxnum); } else { stopcrit<-c(stopcrit,maxnum=0); }
       if("undecided" %in% ls(steps)) { stopcrit<-c(stopcrit,undecided=steps$undecided); } else { stopcrit<-c(stopcrit,undecided=0); }
       if("elapsedsec" %in% ls(steps)) { stopcrit<-c(stopcrit,elapsedsec=steps$elapsedsec); } else { stopcrit<-c(stopcrit,elapsedsec=0); }
+      if("maxB" %in% ls(steps)) { stopcrit<-c(stopcrit,maxB=steps$maxB); } else { stopcrit<-c(stopcrit,maxB=0); }
     }
 
     return(mainalg(data, stopcrit));
@@ -383,7 +396,8 @@ setMethod("summary.mmctestres", signature(object="mmctestres"), function(object)
 # exportMethods: run
 setClass("mmctest", contains="mmctestres", representation=representation(internal="environment"))
 
-setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), function(alg, gensample, maxsteps=list(maxit=0, maxnum=0, undecided=0, elapsedsec=0)) {
+# setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), function(alg, gensample, maxsteps=list(maxit=0, maxnum=0, undecided=0, elapsedsec=0)) {
+setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), function(alg, gensample, maxsteps=list(maxit=0, maxnum=0, undecided=0, elapsedsec=0, maxB=0)) {
 
     obj <- new("mmctestres");
 
@@ -424,45 +438,3 @@ mmctest <- function(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F, R=1000)
   return(obj);
 }
 
-# #######
-# # sCCA sampler
-# setClass("SCCASampler", contains="mmctSamplerGeneric",
-#          representation=representation(data="list"))
-#
-# setMethod("getSamples", signature(obj="SCCASampler"),
-#           function(obj, ind, n) {
-#             X <- obj@data$X # n X p
-#             Y <- obj@data$Y # n X q
-#             clusters.list <- obj@data$clusters.list
-#             TestStat.observed <- obj@data$TestStat.observed
-#             settings <- obj@data$settings
-#
-#             result <- matrix(NA,nrow=length(ind),ncol=n[1]) # number of hypothesis X number of permutations
-#             for(b in 1:n[1]) { # for each permutation
-#               # cat("permutation b = ",b,", hypothesis = ",length(ind),"\n")
-#               index <- sample(1:nrow(X), size = nrow(X), replace = FALSE)
-#               X_permute<-X[index,]
-#
-#               for(i in 1:length(ind)){
-#                 Y.subset <- Y[, clusters.list[[i]]] # n X q matrix
-#                 result[i,b] <- SparseCCA(X=X_permute,Y=Y.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,Y.groupidx=settings$Y.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv)$cancors.spearman
-#               }
-#             }
-#
-#             # RETURN: the number of exceedness for each hypothesis
-#             if(length(ind) <= 1){
-#               exceed <- sum(result > TestStat.observed[ind])
-#             }else{
-#               exceed <- apply(apply(result,2,function(x) 1*(x > TestStat.observed[ind])),1,sum)
-#             }
-#
-#             return(exceed)
-#           }
-# )
-#
-#
-# setMethod("getNumber", signature(obj="SCCASampler"),
-#           function(obj) {
-#             return(length(obj@data$clusters.list));
-#           }
-# )

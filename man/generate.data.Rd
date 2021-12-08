@@ -11,20 +11,21 @@ generate.data(n = 500)
 }
 \value{
 The function returns a list of objects:
-  - DATA.X: A \eqn{n} by \eqn{p=12} matrix where \eqn{n} is a number of subjects and \eqn{p=12} is a number of exposures.
-  - DATA.Y: A \eqn{n} by \eqn{q=14} matrix where \eqn{n} is a number of subjects and \eqn{q=14} is a number of CpG sites.
-  - TRUE.ALPHA: A vector of length \eqn{p=12} which represents true loading vector \eqn{alpha}
-  - TRUE.BETA: A vector of length \eqn{q=14} which represents true loading vector \eqn{beta}
-  - SIGMA.XX: A \eqn{p} by \eqn{p} exposure correlation matrix used to generated data
-  - SIGMA.YY: A \eqn{q} by \eqn{q} outcome correlation matrix used to generated data
-  - SIGMA.XY: A \eqn{p} by \eqn{q} correlation matrix of exposure and outcome used to generated data
+\itemize{
+\item DATA.X: A \eqn{n} by \eqn{p=12} matrix where \eqn{n} is a number of subjects and \eqn{p=12} is a number of exposures.
+\item DATA.Y: A \eqn{n} by \eqn{q=14} matrix where \eqn{n} is a number of subjects and \eqn{q=14} is a number of CpG sites.
+\item TRUE.ALPHA: A vector of length \eqn{p=12} which represents true loading vector \eqn{alpha}
+\item TRUE.BETA: A vector of length \eqn{q=14} which represents true loading vector \eqn{beta}
+\item SIGMA.XX: A \eqn{p} by \eqn{p} exposure correlation matrix used to generated data
+\item SIGMA.YY: A \eqn{q} by \eqn{q} outcome correlation matrix used to generated data
+\item SIGMA.XY: A \eqn{p} by \eqn{q} correlation matrix of exposure and outcome used to generated data
+}
 }
 \description{
 Generates synthetic data with five exposures (p=5) and DNA methylation data with 14 CpG sites (q=14) in chromosome 7.
 The data is generated from multivariate normal distribution where first three exposures (exposure 1-3) are associated with a single DMR region with three CpG sites (“cg03120555”,“cg04952627”,“cg10251229”).
-
-
-### INPUT
+\subsection{INPUT}{
+}
 }
 \examples{
 data.list <- generate.data(n=500)

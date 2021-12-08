@@ -25,6 +25,7 @@ font-style: italic;
 </style>
 ```{r, include=F}
 knitr::opts_chunk$set(echo = TRUE)
+roxygen2::roxygenise()
 ```
 
 ## [STEP 0] Install R packages needed to run AclustsCCA
@@ -139,22 +140,21 @@ X.groupidx <- NULL # For lasso or adaptive lasso, no need to define grouping str
 # Define temporary filepath to save permutation result (as it may take several days)
 permute.tmp.filepath <- file.path(getwd(),paste("AclustsCCA_Permute_tmp_maxB",maxB,".RData",sep=""))
 
-# Run SparseCCA
-RESULT <- SparseCCA.permute(clusters.list=clusters.list,
-                            X=DATA.X,
-                            Y=DATA.Y,
-                            Xmethod=Xmethod,
-                            Ymethod=Ymethod,
-                            maxnum=maxnum,
-                            maxB=maxB,
-                            permute.tmp.filepath=permute.tmp.filepath)
+# Run AclustsCCA
+AclustsCCA.result <- AclustsCCA(clusters.list=clusters.list,
+                                X=DATA.X,
+                                Y=DATA.Y,
+                                Xmethod=Xmethod,
+                                Ymethod=Ymethod,
+                                maxnum=maxnum,
+                                maxB=maxB,
+                                permute.tmp.filepath=permute.tmp.filepath,
+                                permute=F,
+                                nthread=3)
 
-
-# SparseCCA.permute <- function(clusters.list,X,Y,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,Y.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,permute.tmp.filepath=NULL){
-
-RESULT$sampler.result # summary of permutation test
-RESULT$sampler.result@num # number of permutations ran for each cluster
-RESULT$sampler.result@g # number of exceedance for each cluster
+AclustsCCA.result$permute.result # summary of permutation test
+AclustsCCA.result$permute.result@num # number of permutations ran for each cluster
+AclustsCCA.result$permute.result@g # number of exceedance for each cluster
 ```
 
 There is still unclassified hypothesis and we would like to run more permutations.

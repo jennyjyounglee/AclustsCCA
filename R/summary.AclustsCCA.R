@@ -1,4 +1,4 @@
-summary.SparseCCA <- function(obj,annot,n.top){
+summary.AclustsCCA <- function(obj,annot,n.top){
   sampler.result<-obj$sampler.result
   ALPHA.observed<-obj$ALPHA.observed
   BETA.observed<-obj$BETA.observed
