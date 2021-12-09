@@ -8,10 +8,9 @@
 #' The original code is accessible https://sites.google.com/view/iwilms/software?authuser=0
 #'
 #'
-#' ### INPUT
-#' @param X` \eqn{n} by \eqn{p} exposure data matrix, where \eqn{n} is sample size and \eqn{p} is number of exposures.
-#' @param Y` \eqn{n} by \eqn{q} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.
-#' @param Z` \eqn{n} by \eqn{e} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of confounders. If `NULL`, partial residuals are used for SparseCCA analysis.
+#' @param X \eqn{n} by \eqn{p} exposure data matrix, where \eqn{n} is sample size and \eqn{p} is number of exposures.
+#' @param Y \eqn{n} by \eqn{q} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.
+#' @param Z \eqn{n} by \eqn{e} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of confounders. If `NULL`, partial residuals are used for SparseCCA analysis.
 #' @param clusters.list A list of clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes. A-clustering is implemented if `NULL` or can be provided by users.
 #' @param annot A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if \cite{clusters.list} is `NULL`.
 #' @param dist.type A type of similarity distance function. Options are "spearman" (default), "pearson" (correlation measures) or "euclid".
@@ -21,18 +20,18 @@
 #' @param bp.thresh.dist A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to dbp in the paper and the default is $999$.
 #' @param Xmethod A penalty function for the exposure, i.e. penalty function when regressing Y onto X. Options are "lasso", "alasso","gglasso", and "SGL" (default).
 #' @param Ymethod A penalty function for the outcome, i.e. penalty function when regressing X onto Y. Options are "lasso", "alasso","gglasso", "SGL", and "OLS" (default).
-#' @param init.method         : Initialization method. Options are "lasso", "OLS", and "SVD" (default).
-#' @param X.groupidx          : A vector of length \eqn{p} that indicates grouping structure of exposure \eqn{X}.
-#' @param Y.groupidx          : A vector of length \eqn{q} that indicates grouping structure of outcome \eqn{Y}.
-#' @param standardize         : A logical flag for exposure \eqn{X} and outcome \eqn{Y} standardization, prior to fitting the model.
-#' @param max.iter            : A maximum number of iterations of SparseCCA. The default is $100$.
-#' @param conv                : A tolerance value for convergence \eqn{epsilon} of SparseCCA. The default is $10e-2$.
+#' @param init.method         Initialization method. Options are "lasso", "OLS", and "SVD" (default).
+#' @param X.groupidx          A vector of length \eqn{p} that indicates grouping structure of exposure \eqn{X}.
+#' @param Y.groupidx          A vector of length \eqn{q} that indicates grouping structure of outcome \eqn{Y}.
+#' @param standardize         A logical flag for exposure \eqn{X} and outcome \eqn{Y} standardization, prior to fitting the model.
+#' @param max.iter            A maximum number of iterations of SparseCCA. The default is 100.
+#' @param conv                A tolerance value for convergence \eqn{epsilon} of SparseCCA. The default is 10e-2.
 #' @param maxnum A maximal total number of permutations across all the clusters.
 #' @param maxB A maximal number of permutations for a single cluster.
 #' @param permute.tmp.filepath Filepath to save intermittent permutation results.
 #' @param permute A logical flag for whether to run permutation test or not.
 #' @param nthread A number of threads to parallelize permutation test and implementation of SparseCCA across all the clusters.
-#' @param FDR.thresh FDR threshold. The default is $0.05$.
+#' @param FDR.thresh FDR threshold. The default is 0.05.
 #'
 #' @return
 #' The function returns a list of 6 objects according to the following order:
@@ -46,6 +45,7 @@
 #' @export
 #'
 #' @examples
+#'
 #'
 #'
 AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid,Y.resid,annot=NULL,dist.type="spearman",Aclust.method="average",thresh.dist=0.2,max.dist=1000,bp.thresh.dist=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,Y.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,permute.tmp.filepath=NULL,permute=T,nthread=2){

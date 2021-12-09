@@ -3,14 +3,10 @@
 #' Sequential implementation of the Monte Carlo test with p-value buckets.
 #'
 #' @description
-#' Class which creates an object of type "mmctestres". Objects can be created by calls of the form \code{mmctest(h=...)
+#' Class which creates an object of type "mmctestres". Objects can be created by calls of the form.
 #'
 #' @include simctest.R
 #'
-#' ### INPUT
-#' \describe{
-#' \item{run}{\code{signature(alg = "mmctest", gensample = "mmctSamplerGeneric", maxsteps = "numeric")}: ... }
-#' }
 #'
 #' @examples
 #'   fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));

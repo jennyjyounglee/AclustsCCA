@@ -36,6 +36,12 @@ AclustsCCA(
 \arguments{
 \item{clusters.list}{A list of clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes. A-clustering is implemented if \code{NULL} or can be provided by users.}
 
+\item{X}{\eqn{n} by \eqn{p} exposure data matrix, where \eqn{n} is sample size and \eqn{p} is number of exposures.}
+
+\item{Y}{\eqn{n} by \eqn{q} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.}
+
+\item{Z}{\eqn{n} by \eqn{e} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of confounders. If \code{NULL}, partial residuals are used for SparseCCA analysis.}
+
 \item{annot}{A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if \cite{clusters.list} is \code{NULL}.}
 
 \item{dist.type}{A type of similarity distance function. Options are "spearman" (default), "pearson" (correlation measures) or "euclid".}
@@ -52,35 +58,29 @@ AclustsCCA(
 
 \item{Ymethod}{A penalty function for the outcome, i.e. penalty function when regressing X onto Y. Options are "lasso", "alasso","gglasso", "SGL", and "OLS" (default).}
 
-\item{standardize}{: A logical flag for exposure \eqn{X} and outcome \eqn{Y} standardization, prior to fitting the model.}
+\item{standardize}{A logical flag for exposure \eqn{X} and outcome \eqn{Y} standardization, prior to fitting the model.}
 
-\item{X.groupidx}{: A vector of length \eqn{p} that indicates grouping structure of exposure \eqn{X}.}
+\item{X.groupidx}{A vector of length \eqn{p} that indicates grouping structure of exposure \eqn{X}.}
 
-\item{Y.groupidx}{: A vector of length \eqn{q} that indicates grouping structure of outcome \eqn{Y}.}
+\item{Y.groupidx}{A vector of length \eqn{q} that indicates grouping structure of outcome \eqn{Y}.}
 
-\item{init.method}{: Initialization method. Options are "lasso", "OLS", and "SVD" (default).}
+\item{init.method}{Initialization method. Options are "lasso", "OLS", and "SVD" (default).}
 
-\item{max.iter}{: A maximum number of iterations of SparseCCA. The default is $100$.}
+\item{max.iter}{A maximum number of iterations of SparseCCA. The default is 100.}
 
-\item{conv}{: A tolerance value for convergence \eqn{epsilon} of SparseCCA. The default is $10e-2$.}
+\item{conv}{A tolerance value for convergence \eqn{epsilon} of SparseCCA. The default is 10e-2.}
 
 \item{maxnum}{A maximal total number of permutations across all the clusters.}
 
 \item{maxB}{A maximal number of permutations for a single cluster.}
 
-\item{FDR.thresh}{FDR threshold. The default is $0.05$.}
+\item{FDR.thresh}{FDR threshold. The default is 0.05.}
 
 \item{permute.tmp.filepath}{Filepath to save intermittent permutation results.}
 
 \item{permute}{A logical flag for whether to run permutation test or not.}
 
 \item{nthread}{A number of threads to parallelize permutation test and implementation of SparseCCA across all the clusters.}
-
-\item{X`}{\eqn{n} by \eqn{p} exposure data matrix, where \eqn{n} is sample size and \eqn{p} is number of exposures.}
-
-\item{Y`}{\eqn{n} by \eqn{q} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.}
-
-\item{Z`}{\eqn{n} by \eqn{e} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of confounders. If \code{NULL}, partial residuals are used for SparseCCA analysis.}
 }
 \value{
 The function returns a list of 6 objects according to the following order:
@@ -97,10 +97,9 @@ The function returns a list of 6 objects according to the following order:
 Implement an iterative penalized least squares approach to sparse canonical correlation analysis (SparseCCA)
 with various penalty functions. Modified Wilms, Ines, and Christophe Croux. "Robust sparse canonical correlation analysis." BMC systems biology 10.1 (2016): 1-13.
 The original code is accessible https://sites.google.com/view/iwilms/software?authuser=0
-\subsection{INPUT}{
-}
 }
 \examples{
+
 
 
 }

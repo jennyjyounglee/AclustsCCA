@@ -7,7 +7,7 @@
 hBH(p, threshold)
 }
 \description{
-
+Class which creates an object of type "mmctestres". Objects can be created by calls of the form.
 }
 \examples{
   fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));
