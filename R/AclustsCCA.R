@@ -16,9 +16,9 @@
 #' @param annot A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if \cite{clusters.list} is `NULL`.
 #' @param dist.type A type of similarity distance function. Options are "spearman" (default), "pearson" (correlation measures) or "euclid".
 #' @param Aclust.method A type of clustering function. Options are "single", "complete" or "average" (default).
-#' @param thresh.dist A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. Corresponds to $\bar{D}$ in the paper and the default is $0.2$
-#' @param max.dist Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to $\bar{d}_{bp}$ in the paper and the default is $1000$.
-#' @param bp.thresh.dist A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to $\underline{d}_{bp}$ in the paper and the default is $999$.
+#' @param thresh.dist A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. Corresponds to D in the paper and the default is $0.2$
+#' @param max.dist Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to dbp in the paper and the default is $1000$.
+#' @param bp.thresh.dist A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to dbp in the paper and the default is $999$.
 #' @param Xmethod A penalty function for the exposure, i.e. penalty function when regressing Y onto X. Options are "lasso", "alasso","gglasso", and "SGL" (default).
 #' @param Ymethod A penalty function for the outcome, i.e. penalty function when regressing X onto Y. Options are "lasso", "alasso","gglasso", "SGL", and "OLS" (default).
 #' @param init.method         : Initialization method. Options are "lasso", "OLS", and "SVD" (default).
