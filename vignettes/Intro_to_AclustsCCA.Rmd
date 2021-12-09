@@ -1,8 +1,8 @@
 ---
-title: "AclustsCCA"
+title: "Introduction to AclustsCCA"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{AclustsCCA}
+  %\VignetteIndexEntry{IntroToAclustsCCA}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,10 +17,11 @@ knitr::opts_chunk$set(
 
 ## Installation
 
-```{r, warning=F, message=F}
+```{r, warning=F, message=F, eval=F}
 devtools::install_github("https://github.com/jennyjyounglee/AclustsCCA")
 library("AclustsCCA")
 ```
+
 
 ## Usage
 
@@ -28,7 +29,8 @@ Below is a list of input parameters:
 
 1. Input data:
 **`X``** \eqn{n} by \eqn{p} exposure data matrix, where \eqn{n} is sample size and \eqn{p} is number of exposures.
-**`Y``** \eqn{q} by \eqn{n} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.
+**`Y``** \eqn{n} by \eqn{q} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.
+**`Z``** \eqn{n} by \eqn{e} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of confounders. If `NULL`, partial residuals are used for SparseCCA analysis.
 **`clusters.list`** A list of clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes. A-clustering is implemented if `NULL` or can be provided by users.
 **`annot`** A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if \cite{clusters.list} is `NULL`.
 
@@ -60,7 +62,7 @@ Below is a list of input parameters:
 
 ## How to implement AclustsCCA
 
-```{r}
+```{r, eval=F}
 data(annot) # row: CpG sites
 data.list <- generate.data(n=500)
 
@@ -77,6 +79,7 @@ bp.thresh.dist <-999
 Xmethod <- "lasso"
 Ymethod <- "OLS"
 maxB <- 300
+nthread <- 2
 
 AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 Y=DATA.Y,
@@ -93,7 +96,61 @@ AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 Ymethod=Ymethod,
                                 # parameters for permutation test for AclustsCCA
                                 maxB=maxB,
-                                permute=F,
-                                nthread=3)                         
+                                nthread=nthread)                         
 ```
 
+## Suggestions on how to run AclustsCCA
+
+The framework of `AclustsCCA` consists of two parts
+1. Implement A-clustering on DNA methylation data
+2. Implement SparseCCA on each cluster identified by A-clustering
+ - When implementing SparseCCA, partial residuals are used to adjust for potential confounders
+ - For statistical inference, permutation test is performed
+
+All of the above procedures can be implemented at once using `AclustsCCA` function. Among these steps, permutation test is definitely a part that takes the most computational time to run and requires attention when running.
+
+Therefore, I personally suggest running each part separately to save computational time and memory.
+ 
+1. Implement A-clustering and save it
+
+A-clustering is implemented to identify cluster and this part have to be ran only once. I personally suggest to run this part separately and save it for future use.
+
+```{r,eval=F}
+# Implement A-clustering
+all.clusters.list <- assign.to.clusters(betas = t(DATA.Y), 
+                                        annot = annot,
+                                        dist.type = dist.type,
+                                        method = Aclust.method,
+                                        thresh.dist = thresh.dist,
+                                        bp.thresh.dist = bp.thresh.dist,
+                                        max.dist = max.dist)
+# AclustsCCA only considers clusters with at least two probes
+clusters.list <- all.clusters.list[sapply(all.clusters.list,length)!=1]
+```
+
+2. Obtain partial residuals to adjust for potential confounders
+
+When implementing SparseCCA, partial residuals are used to adjust for potential confounders. Again, computing partial residuals have to be ran only once. I personally suggest to run this part separately and save it for future use.
+
+```{r,eval=F}
+X.resid <- partial.residual(data=DATA.X,Z=Z,nthread=nthread)
+Y.resid <- partial.residual(data=DATA.Y,Z=Z,nthread=nthread)
+```
+
+3. Implement SparseCCA and permutation test on each cluster identified by A-clustering
+
+As list of clusters are provided and partial residuals are computed, `AclustsCCA` will only run SparseCCA on each cluster identified by A-clustering.
+
+```{r,eval=F}
+AclustsCCA.result <- AclustsCCA(X=X.resid,
+                                Y=Y.resid,
+                                clusters.list=clusters.list,
+                                # parameters for SparseCCA
+                                Xmethod=Xmethod,
+                                Ymethod=Ymethod,
+                                # parameters for permutation test for AclustsCCA
+                                maxB=maxB,
+                                permute=T,
+                                nthread=3) 
+
+```

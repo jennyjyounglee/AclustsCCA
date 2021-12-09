@@ -1,21 +1,15 @@
 
 #' @title
-#' Build SCCA.SAMPLER
+#' Build AclustsCCA sampler
 #'
 #' @description
-#' Build SCCA.SAMPLER
+#' class AclustsCCASampler, inherited from mmctSamplerGeneric
+#' For more information: \url{https://cran.r-project.org/web/packages/simctest/vignettes/simctest-mmctest-intro.pdf}
 #'
 #' @include simctest.R mmctest.R
 #'
-#' @param gen: function that performs one sampling step. Returns 0 (sampled test statistic does not exceed the observation) or 1 (sampled test static exceeds the observation)
-#' @param method: which method to use for stopping
-#'
 #' @return
-#' \code{mctest}, \code{mctest.RL} and \code{mctest.simctest} all return an object of class type \code{mctestres}, which has a print function (\code{print.mctestres}).
-#' An object of class \code{mctestres} is a list with the following components: step (total batched number of samples drawn), decision.interval (interval for the p-value), decision (expressing significance), est.p (an estimate of the p-value) and realn (the actual number of samples taken without batching).
 #'
-#' @examples
-#' Example use
 ############################################################################
 
 # sCCA sampler

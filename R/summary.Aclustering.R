@@ -47,6 +47,7 @@
 #' clusters.list <- assign.to.clusters(betas.7, annot)
 #' summary.Aclustering(clusters.list=clusters.list,annot=annot,digits=2)
 #'
+#'
 summary.Aclustering <- function(clusters.list,annot,digits=2){
   DAT.clusters <- lapply(seq_along(clusters.list), function(i){
     data.frame("IlmnID"=clusters.list[[i]], "ClustIdx"=i)

@@ -7,6 +7,7 @@ Maintainer: Jenny Lee <jenny_lee@g.harvard.edu>
 Description: Provides a framework for estimating the assocation between multiple exposures and high-dimensional DNA methylation outcomes.
 License: What license is it under?
 Language: en-US
+URL: https://github.com/jennyjyounglee/AclustsCCA
 Imports: 
     stats,
     mvtnorm,
@@ -44,6 +45,7 @@ Collate:
     'Sparse.alternating.R'
     'SparseCCA.R'
     'generate.data.R'
+    'partial.residual.R'
     'summary.Aclustering.R'
     'summary.AclustsCCA.R'
     'utilis.R'

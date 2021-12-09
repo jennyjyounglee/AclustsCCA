@@ -3,49 +3,20 @@
 #' Sequential implementation of the Monte Carlo test with p-value buckets.
 #'
 #' @description
-#' Implementation of the Robbins-Lai (mctest.RL) and SIMCTEST (mctest.simctest) approaches to compute a decision interval (and decision) with respect to several thresholds/ p-value buckets. The function "mctest" is a wrapper function for both the Robbins-Lai and the SIMCTEST approach which calls one of the two using an additional parameter "method" (method="simctest" for SIMCTEST and method="RL" for Robbins-Lai).
+#' Class which creates an object of type "mmctestres". Objects can be created by calls of the form \code{mmctest(h=...)
 #'
 #' @include simctest.R
 #'
 #' ### INPUT
-#' @param gen: function that performs one sampling step. Returns 0 (sampled test statistic does not exceed the observation) or 1 (sampled test static exceeds the observation)
-#' @param method: which method to use for stopping
-#' @param J: p-value buckets to use. A matrix with two rows, each column describes an interval bucket. Column names give the code for the interval bucket. Defaults to Jstar.
-#' @param epsilon: error bound
-#' @param batch: initial number of samples to use before checking for stopping
-#' @param batchincrement: factor by which the batch size gets multiplied after each step. 1 would mean no increment
-#' @param maxbatch: maximum batch size
-#' @param x: object of type "mctestres"
-#'
-#' @return
-#' \code{mctest}, \code{mctest.RL} and \code{mctest.simctest} all return an object of class type \code{mctestres}, which has a print function (\code{print.mctestres}).
-#' An object of class \code{mctestres} is a list with the following components: step (total batched number of samples drawn), decision.interval (interval for the p-value), decision (expressing significance), est.p (an estimate of the p-value) and realn (the actual number of samples taken without batching).
+#' \describe{
+#' \item{run}{\code{signature(alg = "mmctest", gensample = "mmctSamplerGeneric", maxsteps = "numeric")}: ... }
+#' }
 #'
 #' @examples
-#' Example used in the above paper
-#' dat <- matrix(nrow=5,ncol=7,byrow=TRUE,
-#'               c(1,2,2,1,1,0,1, 2,0,0,2,3,0,0, 0,1,1,1,2,7,3, 1,1,2,0,0,0,1, 0,1,1,1,1,0,0))
-#' loglikrat <- function(data){
-#'   cs <- colSums(data)
-#'   rs <- rowSums(data)
-#'   mu <- outer(rs,cs)/sum(rs)
-#'   2*sum(ifelse(data<=0.5, 0,data*log(data/mu)))
-#' }
-#' resample <- function(data){
-#'   cs <- colSums(data)
-#'   rs <- rowSums(data)
-#'   n <- sum(rs)
-#'   mu <- outer(rs,cs)/n/n
-#'   matrix(rmultinom(1,n,c(mu)),nrow=dim(data)[1],ncol=dim(data)[2])
-#' }
-#' t <- loglikrat(dat);
-#' # function to generate samples
-#' gen <- function(){loglikrat(resample(dat))>=t}
-#'
-#' #using simctest
-#' mctest(gen)
-#' mctest.simctest(gen)
-#' mctest.RL(gen)
+#'   fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));
+#'   i <- mmctSampler(fun,num=500,data=runif(500));
+#'   a <- mmctest(h=hBH);
+#'   a <- run(a, i, maxsteps=list(maxnum=1000000,undecided=10));
 
 # source("simctest/R/simctest.r");
 

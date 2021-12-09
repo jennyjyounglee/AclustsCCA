@@ -1,3 +1,32 @@
+
+#' @title
+#' Penalized least squares function used for SparseCCA
+#'
+#' @description
+#' Implement an penalized least squares needed to run sparse canonical correlation analysis (SparseCCA)
+#' with various penalty functions. Modified Wilms, Ines, and Christophe Croux. "Robust sparse canonical correlation analysis." BMC systems biology 10.1 (2016): 1-13.
+#' The original code is accessible https://sites.google.com/view/iwilms/software?authuser=0
+#'
+#'
+#' ### INPUT
+#' @param Xreg                   : A data matrix of \eqn{n} rows
+#' @param Yreg                   : A vector of length \eqn{n}
+#' @param Xmethod                : penalty function for the exposure, i.e. penalty function when regressing Yreg onto Xreg. Possible values are:
+#'   - "lasso": Lasso
+#'   - "alasso": Adaptive Lasso
+#'   - "gglasso": Group Lasso
+#'   - "SGL": Sparse Group Lasso
+#'   - "OLS": Ordinary Least Square
+#'
+#' @examples
+#' data.list <- generate.data(n=500)
+#' DATA.X <- data.list$DATA.X
+#' DATA.Y <- data.list$DATA.Y
+#' Sparse.alternating.result <- Sparse.alternating(Xreg=DATA.X,Yreg=DATA.Y[,1],method="SGL")
+#' str(Sparse.alternating.result)
+#'
+#'
+#'
 Sparse.alternating<-function(Xreg,Yreg,method,groupidx=NULL){
   # AUX FUNCTION
   ### Function to perform sparse alternating regression

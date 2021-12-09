@@ -4,7 +4,7 @@
 \alias{summary.Aclustering}
 \title{Summarize the A-clustering result}
 \usage{
-summary.Aclustering(clusters.list, annot, digits = 2)
+\method{summary}{Aclustering}(clusters.list, annot, digits = 2)
 }
 \arguments{
 \item{clusters.list}{: A list of clusters with CpG sites, each item is a cluster that contains a set of probes}
@@ -54,5 +54,6 @@ annot <- annot[order(CHR,Coordinate_37),]
 
 clusters.list <- assign.to.clusters(betas.7, annot)
 summary.Aclustering(clusters.list=clusters.list,annot=annot,digits=2)
+
 
 }
