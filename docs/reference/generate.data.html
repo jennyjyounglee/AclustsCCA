@@ -37,8 +37,16 @@ INPUT
      
     <span class="caret"></span>
   </a>
-  <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/best_vignette_ever.html">This is my Vignette</a>
+  <ul class="dropdown-menu" role="menu"><li class="divider">
+    <li class="dropdown-header">Step by Step Guide</li>
+    <li>
+      <a href="../articles/Intro_to_Aclust.html">Step 1: Implement A-clustering</a>
+    </li>
+    <li>
+      <a href="../articles/Intro_to_Partial_Residuals.html">Step 2: Obtain Partial Residuals</a>
+    </li>
+    <li>
+      <a href="../articles/Intro_to_SparseCCA.html">Step 3: Implement SparseCCA on each clusterg</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
@@ -88,32 +96,9 @@ The data is generated from multivariate normal distribution where first three ex
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">data.list</span> <span class="op">&lt;-</span> <span class="fu">generate.data</span><span class="op">(</span>n<span class="op">=</span><span class="fl">500</span><span class="op">)</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in AR.matrix(n = 6, rho = 0.9):</span> could not find function "AR.matrix"</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> List of 7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ DATA.X    : num [1:500, 1:12] -0.799 0.985 0.083 0.626 -1.133 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : chr [1:500] "Subject1" "Subject2" "Subject3" "Subject4" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : chr [1:12] "exposure1" "exposure2" "exposure3" "exposure4" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ DATA.Y    : num [1:500, 1:14] -1.389 0.408 0.496 2.575 0.572 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : chr [1:500] "Subject1" "Subject2" "Subject3" "Subject4" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : chr [1:14] "cg00725145" "cg16080333" "cg23568068" "cg05107246" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ TRUE.ALPHA: Named num [1:12] 0.349 0.349 0.349 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "names")= chr [1:12] "exposure1" "exposure2" "exposure3" "exposure4" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ TRUE.BETA : Named num [1:14] 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "names")= chr [1:14] "cg00725145" "cg16080333" "cg23568068" "cg05107246" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ SIGMA.XX  : num [1:12, 1:12] 1 0.9 0.81 0.729 0.1 0.1 0.1 0.1 0.1 0.1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : chr [1:12] "exposure1" "exposure2" "exposure3" "exposure4" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : chr [1:12] "exposure1" "exposure2" "exposure3" "exposure4" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ SIGMA.YY  : num [1:14, 1:14] 1 0.9 0.81 0.729 0.656 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : chr [1:14] "cg00725145" "cg16080333" "cg23568068" "cg05107246" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : chr [1:14] "cg00725145" "cg16080333" "cg23568068" "cg05107246" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ SIGMA.XY  : num [1:12, 1:14] 0.08901 0.09197 0.08901 0.08011 0.00985 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "dimnames")=List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : chr [1:12] "exposure1" "exposure2" "exposure3" "exposure4" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : chr [1:14] "cg00725145" "cg16080333" "cg23568068" "cg05107246" ...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in str(data.list):</span> object 'data.list' not found</span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>

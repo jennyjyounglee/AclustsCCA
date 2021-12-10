@@ -1,23 +1,22 @@
 
 #' @title
-#' Implement SparseCCA
+#' Implement AclustsCCA
 #'
 #' @description
-#' Implement an iterative penalized least squares approach to sparse canonical correlation analysis (SparseCCA)
-#' with various penalty functions. Modified Wilms, Ines, and Christophe Croux. "Robust sparse canonical correlation analysis." BMC systems biology 10.1 (2016): 1-13.
-#' The original code is accessible https://sites.google.com/view/iwilms/software?authuser=0
-#'
+#' Implement an iterative penalized least squares approach to
+#' sparse canonical correlation analysis (SparseCCA)
+#' with various penalty functions.
 #'
 #' @param X \eqn{n} by \eqn{p} exposure data matrix, where \eqn{n} is sample size and \eqn{p} is number of exposures.
 #' @param Y \eqn{n} by \eqn{q} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.
-#' @param Z \eqn{n} by \eqn{e} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of confounders. If `NULL`, partial residuals are used for SparseCCA analysis.
+#' @param Z \eqn{n} by \eqn{r} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of confounders. If `NULL`, partial residuals are used for SparseCCA analysis.
 #' @param clusters.list A list of clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes. A-clustering is implemented if `NULL` or can be provided by users.
-#' @param annot A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if \cite{clusters.list} is `NULL`.
+#' @param annot A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if **`clusters.list`** is `NULL`.
 #' @param dist.type A type of similarity distance function. Options are "spearman" (default), "pearson" (correlation measures) or "euclid".
 #' @param Aclust.method A type of clustering function. Options are "single", "complete" or "average" (default).
-#' @param thresh.dist A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. Corresponds to D in the paper and the default is $0.2$
-#' @param max.dist Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to dbp in the paper and the default is $1000$.
-#' @param bp.thresh.dist A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to dbp in the paper and the default is $999$.
+#' @param thresh.dist A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. The default is 0.2
+#' @param max.dist Optional maximum length between neighboring variables permitting to cluster them together. The default is 1000.
+#' @param bp.thresh.dist A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to **`bp.dist`** will be potentially merged, depending on the similarity between sites at the ends of the interval. The default is 999.
 #' @param Xmethod A penalty function for the exposure, i.e. penalty function when regressing Y onto X. Options are "lasso", "alasso","gglasso", and "SGL" (default).
 #' @param Ymethod A penalty function for the outcome, i.e. penalty function when regressing X onto Y. Options are "lasso", "alasso","gglasso", "SGL", and "OLS" (default).
 #' @param init.method         Initialization method. Options are "lasso", "OLS", and "SVD" (default).
@@ -28,19 +27,19 @@
 #' @param conv                A tolerance value for convergence \eqn{epsilon} of SparseCCA. The default is 10e-2.
 #' @param maxnum A maximal total number of permutations across all the clusters.
 #' @param maxB A maximal number of permutations for a single cluster.
-#' @param permute.tmp.filepath Filepath to save intermittent permutation results.
+#' @param permute.tmp.filepath A file path to save intermittent permutation results.
 #' @param permute A logical flag for whether to run permutation test or not.
 #' @param nthread A number of threads to parallelize permutation test and implementation of SparseCCA across all the clusters.
-#' @param FDR.thresh FDR threshold. The default is 0.05.
+#' @param FDR.thresh False discovery rate (FDR) threshold. The default is 0.05.
 #'
 #' @return
 #' The function returns a list of 6 objects according to the following order:
-#'   - clusters.list          : A list of clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes. If A-clustering is not implemented inside AclustsCCA, return NA.
-#'   - ALPHA.observed         : A list of estimated canonical vector of length \eqn{p} corresponding to the exposure data \eqn{X} for each cluster
-#'   - BETA.observed          : A list of estimated canonical vector of length \eqn{q} corresponding to the outcome data \eqn{Y} for each cluster
-#'   - cancors.observed       : A vector of estimated canonical correlation for each cluster
-#'   - permutation.result     : A \code{mmctest} object that contains permutation results
-#'   - settings               : A settings used for the analysis
+#'   - clusters.list          : A list of clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes. If A-clustering is not implemented inside AclustsCCA, return `NA`.
+#'   - ALPHA.observed         : A list of estimated canonical vector of length \eqn{p} corresponding to the exposure data \eqn{X} for each cluster.
+#'   - BETA.observed          : A list of estimated canonical vector of length \eqn{q} corresponding to the outcome data \eqn{Y} for each cluster.
+#'   - cancors.observed       : A vector of estimated canonical correlation for each cluster.
+#'   - permutation.result     : A \code{mmctest} object that contains permutation results.
+#'   - settings               : A settings used for the analysis.
 #'
 #' @export
 #'
@@ -48,7 +47,7 @@
 #'
 #'
 #'
-AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid,Y.resid,annot=NULL,dist.type="spearman",Aclust.method="average",thresh.dist=0.2,max.dist=1000,bp.thresh.dist=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,Y.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,permute.tmp.filepath=NULL,permute=T,nthread=2){
+AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,annot=NULL,dist.type="spearman",Aclust.method="average",thresh.dist=0.2,max.dist=1000,bp.thresh.dist=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,Y.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,permute=T,nthread=2){
   if(is.null(clusters.list)){
     ##########################################################################
     # (1) Implement Aclustering
@@ -127,7 +126,8 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid,Y.resid,annot=NULL,
   if(isTRUE(permute)){ # run permutation test
     # (3-1) Define sampler to run: test statistic as canonical correlation (spearman)
     data.sCCA <- list(X=X.resid,
-                      Y=Y.resid.subset,
+                      Y=Y.resid,
+                      num.clusters=length(clusters.list),
                       clusters.list=clusters.list,
                       TestStat.observed=cancors.observed,
                       settings=settings)

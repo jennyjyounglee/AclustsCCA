@@ -3,4 +3,4 @@
 S3method(summary,Aclustering)
 export(AclustsCCA)
 export(SparseCCA)
-export(generate.data)
+export(partial.residual)

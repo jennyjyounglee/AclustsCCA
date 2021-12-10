@@ -20,6 +20,7 @@ setMethod("getSamples", signature(obj="AclustsCCASampler"),
           function(obj, ind, n) {
             X <- obj@data$X # n X p
             Y <- obj@data$Y # n X q
+            num.clusters <- obj@data$num.clusters
             clusters.list <- obj@data$clusters.list # list of clusters obtained from Aclust
             TestStat.observed <- obj@data$TestStat.observed # Test statistics for permutation test
             settings <- obj@data$settings
@@ -60,6 +61,6 @@ setMethod("getSamples", signature(obj="AclustsCCASampler"),
 
 setMethod("getNumber", signature(obj="AclustsCCASampler"),
           function(obj) {
-            return(length(obj@data$clusters.list));
+            return(obj@data$num.clusters);
           }
 )

@@ -2,15 +2,15 @@
 % Please edit documentation in R/AclustsCCA.R
 \name{AclustsCCA}
 \alias{AclustsCCA}
-\title{Implement SparseCCA}
+\title{Implement AclustsCCA}
 \usage{
 AclustsCCA(
   clusters.list = NULL,
   X,
   Y,
   Z = NULL,
-  X.resid,
-  Y.resid,
+  X.resid = NULL,
+  Y.resid = NULL,
   annot = NULL,
   dist.type = "spearman",
   Aclust.method = "average",
@@ -28,7 +28,6 @@ AclustsCCA(
   maxnum = NULL,
   maxB = 10000,
   FDR.thresh = 0.05,
-  permute.tmp.filepath = NULL,
   permute = T,
   nthread = 2
 )
@@ -40,19 +39,19 @@ AclustsCCA(
 
 \item{Y}{\eqn{n} by \eqn{q} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.}
 
-\item{Z}{\eqn{n} by \eqn{e} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of confounders. If \code{NULL}, partial residuals are used for SparseCCA analysis.}
+\item{Z}{\eqn{n} by \eqn{r} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of confounders. If \code{NULL}, partial residuals are used for SparseCCA analysis.}
 
-\item{annot}{A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if \cite{clusters.list} is \code{NULL}.}
+\item{annot}{A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if \strong{\code{clusters.list}} is \code{NULL}.}
 
 \item{dist.type}{A type of similarity distance function. Options are "spearman" (default), "pearson" (correlation measures) or "euclid".}
 
 \item{Aclust.method}{A type of clustering function. Options are "single", "complete" or "average" (default).}
 
-\item{thresh.dist}{A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. Corresponds to D in the paper and the default is $0.2$}
+\item{thresh.dist}{A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. The default is 0.2}
 
-\item{max.dist}{Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to dbp in the paper and the default is $1000$.}
+\item{max.dist}{Optional maximum length between neighboring variables permitting to cluster them together. The default is 1000.}
 
-\item{bp.thresh.dist}{A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to dbp in the paper and the default is $999$.}
+\item{bp.thresh.dist}{A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to \strong{\code{bp.dist}} will be potentially merged, depending on the similarity between sites at the ends of the interval. The default is 999.}
 
 \item{Xmethod}{A penalty function for the exposure, i.e. penalty function when regressing Y onto X. Options are "lasso", "alasso","gglasso", and "SGL" (default).}
 
@@ -74,29 +73,29 @@ AclustsCCA(
 
 \item{maxB}{A maximal number of permutations for a single cluster.}
 
-\item{FDR.thresh}{FDR threshold. The default is 0.05.}
-
-\item{permute.tmp.filepath}{Filepath to save intermittent permutation results.}
+\item{FDR.thresh}{False discovery rate (FDR) threshold. The default is 0.05.}
 
 \item{permute}{A logical flag for whether to run permutation test or not.}
 
 \item{nthread}{A number of threads to parallelize permutation test and implementation of SparseCCA across all the clusters.}
+
+\item{permute.tmp.filepath}{A file path to save intermittent permutation results.}
 }
 \value{
 The function returns a list of 6 objects according to the following order:
 \itemize{
-\item clusters.list          : A list of clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes. If A-clustering is not implemented inside AclustsCCA, return NA.
-\item ALPHA.observed         : A list of estimated canonical vector of length \eqn{p} corresponding to the exposure data \eqn{X} for each cluster
-\item BETA.observed          : A list of estimated canonical vector of length \eqn{q} corresponding to the outcome data \eqn{Y} for each cluster
-\item cancors.observed       : A vector of estimated canonical correlation for each cluster
-\item permutation.result     : A \code{mmctest} object that contains permutation results
-\item settings               : A settings used for the analysis
+\item clusters.list          : A list of clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes. If A-clustering is not implemented inside AclustsCCA, return \code{NA}.
+\item ALPHA.observed         : A list of estimated canonical vector of length \eqn{p} corresponding to the exposure data \eqn{X} for each cluster.
+\item BETA.observed          : A list of estimated canonical vector of length \eqn{q} corresponding to the outcome data \eqn{Y} for each cluster.
+\item cancors.observed       : A vector of estimated canonical correlation for each cluster.
+\item permutation.result     : A \code{mmctest} object that contains permutation results.
+\item settings               : A settings used for the analysis.
 }
 }
 \description{
-Implement an iterative penalized least squares approach to sparse canonical correlation analysis (SparseCCA)
-with various penalty functions. Modified Wilms, Ines, and Christophe Croux. "Robust sparse canonical correlation analysis." BMC systems biology 10.1 (2016): 1-13.
-The original code is accessible https://sites.google.com/view/iwilms/software?authuser=0
+Implement an iterative penalized least squares approach to
+sparse canonical correlation analysis (SparseCCA)
+with various penalty functions.
 }
 \examples{
 

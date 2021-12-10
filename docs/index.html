@@ -49,8 +49,17 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="articles/best_vignette_ever.html">This is my Vignette</a>
+<li class="divider">
+    </li>
+<li class="dropdown-header">Step by Step Guide</li>
+    <li>
+      <a href="articles/Intro_to_Aclust.html">Step 1: Implement A-clustering</a>
+    </li>
+    <li>
+      <a href="articles/Intro_to_Partial_Residuals.html">Step 2: Obtain Partial Residuals</a>
+    </li>
+    <li>
+      <a href="articles/Intro_to_SparseCCA.html">Step 3: Implement SparseCCA on each clusterg</a>
     </li>
   </ul>
 </li>
@@ -67,14 +76,15 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div class="section level1">
-<div class="page-header"><h1 id="aclustscca">AclustsCCA<a class="anchor" aria-label="anchor" href="#aclustscca"></a>
-</h1></div>
-<!-- badges: start -->
-<!-- badges: end -->
-<p>The goal of AclustsCCA is to …</p>
+
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="0-what-is-aclustscca">0. What is AclustsCCA?<a class="anchor" aria-label="anchor" href="#0-what-is-aclustscca"></a>
+</h2>
+<p>AclustsCCA is a sdfdf</p>
+<p>The goal of AclustsCCA is to …</p>
+</div>
+<div class="section level2">
+<h2 id="1-installation">1. Installation<a class="anchor" aria-label="anchor" href="#1-installation"></a>
 </h2>
 <p>You can install the released version of AclustsCCA from <a href="https://CRAN.R-project.org" class="external-link">CRAN</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -82,30 +92,159 @@
 <p>And the development version from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"jennyjyounglee/AclustsCCA"</span><span class="op">)</span></code></pre></div>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"jennyjyounglee/AclustsCCA"</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">AclustsCCA</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="2-input-parameters-for-aclustscca">2. Input Parameters for AclustsCCA<a class="anchor" aria-label="anchor" href="#2-input-parameters-for-aclustscca"></a>
 </h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
+<p>The below is a list of input parameters:</p>
+<div class="section level3">
+<h3 id="21-input-data">2.1 Input data<a class="anchor" aria-label="anchor" href="#21-input-data"></a>
+</h3>
+<p><strong><code>X</code></strong> by exposure data matrix, where is sample size and is number of exposures.</p>
+<p><strong><code>Y</code></strong> by outcome data matrix, where is sample size and is number of outcomes.</p>
+<p><strong><code>Z</code></strong> by confounder data matrix, where is sample size and is number of confounders. If <code>NULL</code>, partial residuals are used for SparseCCA analysis.</p>
+<p><strong><code>clusters.list</code></strong> A list of clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes. A-clustering is implemented if <code>NULL</code> or can be provided by users.</p>
+<p><strong><code>annot</code></strong> A preloaded annotation file that includes columns “IlmnID”, “Coordinate_37”, “Islands_Name”, “Relation_to_Island”, “UCSC_RefGene_Name”. Only needed if <strong><code>clusters.list</code></strong> is <code>NULL</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="22-input-parameters-associated-with-a-clustering">2.2 Input parameters associated with A-clustering:<a class="anchor" aria-label="anchor" href="#22-input-parameters-associated-with-a-clustering"></a>
+</h3>
+<p><strong><code>dist.type</code></strong> A type of similarity distance function. Options are “spearman” (default), “pearson” (correlation measures) or “euclid”.</p>
+<p><strong><code>Aclust.method</code></strong> A type of clustering function. Options are “single”, “complete” or “average” (default).</p>
+<p><strong><code>thresh.dist</code></strong> A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. Corresponds to <em>D̄</em> in the paper and the default is 0.2</p>
+<p><strong><code>max.dist</code></strong> Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to <em>d̄</em><sub>*b**p*</sub> in the paper and the default is 1000.</p>
+<p><strong><code>bp.thresh.dist</code></strong> A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to <span class="math inline">$\\underline{d}\_{bp}$</span> in the paper and the default is 999.</p>
+</div>
+<div class="section level3">
+<h3 id="23-input-parameters-associated-with-sparsecca">2.3 Input parameters associated with SparseCCA:<a class="anchor" aria-label="anchor" href="#23-input-parameters-associated-with-sparsecca"></a>
+</h3>
+<p><strong><code>Xmethod</code></strong> A penalty function for the exposure, i.e. penalty function when regressing Y onto X. Options are “lasso”, “alasso”,“gglasso”, and “SGL” (default).</p>
+<p><strong><code>Ymethod</code></strong> A penalty function for the outcome, i.e. penalty function when regressing X onto Y. Options are “lasso”, “alasso”,“gglasso”, “SGL”, and “OLS” (default).</p>
+<p><strong><code>init.method</code></strong> Initialization method. Options are “lasso”, “OLS”, and “SVD” (default).</p>
+<p><strong><code>X.groupidx</code></strong> A vector of length that indicates grouping structure of exposure .</p>
+<p><strong><code>Y.groupidx</code></strong> A vector of length that indicates grouping structure of outcome .</p>
+<p><strong><code>standardize</code></strong> A logical flag for exposure and outcome standardization, prior to fitting the model.</p>
+<p><strong><code>max.iter</code></strong> A maximum number of iterations of SparseCCA. The default is 100.</p>
+<p><strong><code>conv</code></strong> A tolerance value for convergence of SparseCCA. The default is 10<em>e</em> − 2.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="14-input-parameters-associated-permutation-test-for-aclustscca">1.4 Input parameters associated permutation test for AclustsCCA:<a class="anchor" aria-label="anchor" href="#14-input-parameters-associated-permutation-test-for-aclustscca"></a>
+</h2>
+<p><strong><code>maxnum</code></strong> A maximal total number of permutations across all the clusters.</p>
+<p><strong><code>maxB</code></strong> A maximal number of permutations for a single cluster.</p>
+<p><strong><code>permute.tmp.filepath</code></strong> Filepath to save intermittent permutation results.</p>
+<p><strong><code>permute</code></strong> A logical flag for whether to run permutation test or not.</p>
+<p><strong><code>nthread</code></strong> A number of threads to parallelize permutation test and implementation of SparseCCA across all the clusters.</p>
+<p><strong><code>FDR.thresh</code></strong> FDR threshold. The default is 0.05.</p>
+</div>
+<div class="section level2">
+<h2 id="3-implementation-of-aclustscca">3. Implementation of AclustsCCA<a class="anchor" aria-label="anchor" href="#3-implementation-of-aclustscca"></a>
+</h2>
+<p>The framework of <code>AclustsCCA</code> consists of two parts:</p>
+<ol style="list-style-type: decimal">
+<li><p>Implement A-clustering on DNA methylation data</p></li>
+<li><p>Implement SparseCCA on each cluster identified by A-clustering</p></li>
+</ol>
+<ul>
+<li><p>When implementing SparseCCA, partial residuals are used to adjust for potential confounders</p></li>
+<li><p>For statistical inference, permutation test is performed</p></li>
+</ul>
+<p>This entire process can be done using the code below, but I personally DO NOT suggest this for computational time and memory. Please read the next section for the suggested way of running <code>AclustsCCA</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">AclustsCCA</span><span class="op">)</span>
-<span class="co">## basic example code</span></code></pre></div>
-<p>What is special about using <code>README.Rmd</code> instead of just <code>README.md</code>? You can include R chunks like so:</p>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">annot</span><span class="op">)</span> <span class="co"># row: CpG sites</span>
+<span class="va">data.list</span> <span class="op">&lt;-</span> <span class="fu">generate.data</span><span class="op">(</span>n<span class="op">=</span><span class="fl">500</span><span class="op">)</span>
+
+<span class="va">DATA.X</span> <span class="op">&lt;-</span> <span class="va">data.list</span><span class="op">$</span><span class="va">DATA.X</span> <span class="co"># row: subjects (n), column: Metals (p)</span>
+<span class="va">DATA.Y</span> <span class="op">&lt;-</span> <span class="va">data.list</span><span class="op">$</span><span class="va">DATA.Y</span> <span class="co"># row: subjects (n), column: CpG sites (q)</span>
+
+
+<span class="va">dist.type</span> <span class="op">&lt;-</span> <span class="st">"spearman"</span>
+<span class="va">Aclust.method</span> <span class="op">&lt;-</span><span class="st">"average"</span>
+<span class="va">thresh.dist</span> <span class="op">&lt;-</span><span class="fl">0.2</span>
+<span class="va">max.dist</span> <span class="op">&lt;-</span><span class="fl">1000</span>
+<span class="va">bp.thresh.dist</span> <span class="op">&lt;-</span><span class="fl">999</span>
+
+<span class="va">Xmethod</span> <span class="op">&lt;-</span> <span class="st">"lasso"</span>
+<span class="va">Ymethod</span> <span class="op">&lt;-</span> <span class="st">"OLS"</span>
+<span class="va">maxB</span> <span class="op">&lt;-</span> <span class="fl">300</span>
+<span class="va">nthread</span> <span class="op">&lt;-</span> <span class="fl">2</span>
+
+<span class="va">AclustsCCA.result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/AclustsCCA.html">AclustsCCA</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">DATA.X</span>,
+                                Y<span class="op">=</span><span class="va">DATA.Y</span>,
+                                clusters.list<span class="op">=</span><span class="cn">NULL</span>,
+                                annot<span class="op">=</span><span class="va">annot</span>,
+                                <span class="co"># parameters for A-clustering</span>
+                                dist.type <span class="op">=</span> <span class="va">dist.type</span>,
+                                Aclust.method <span class="op">=</span> <span class="va">Aclust.method</span>,
+                                thresh.dist <span class="op">=</span> <span class="va">thresh.dist</span>,
+                                max.dist <span class="op">=</span> <span class="va">max.dist</span>,
+                                bp.thresh.dist <span class="op">=</span> <span class="va">bp.thresh.dist</span>,
+                                <span class="co"># parameters for SparseCCA</span>
+                                Xmethod<span class="op">=</span><span class="va">Xmethod</span>,
+                                Ymethod<span class="op">=</span><span class="va">Ymethod</span>,
+                                <span class="co"># parameters for permutation test for AclustsCCA</span>
+                                maxB<span class="op">=</span><span class="va">maxB</span>,
+                                nthread<span class="op">=</span><span class="va">nthread</span><span class="op">)</span>                         </code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="4-suggestions-on-how-to-run-aclustscca">4. Suggestions on how to run AclustsCCA<a class="anchor" aria-label="anchor" href="#4-suggestions-on-how-to-run-aclustscca"></a>
+</h2>
+<p>The framework of <code>AclustsCCA</code> consists of two parts:</p>
+<ol style="list-style-type: decimal">
+<li><p>Implement A-clustering on DNA methylation data</p></li>
+<li><p>Implement SparseCCA on each cluster identified by A-clustering</p></li>
+</ol>
+<ul>
+<li><p>When implementing SparseCCA, partial residuals are used to adjust for potential confounders</p></li>
+<li><p>For statistical inference, permutation test is performed</p></li>
+</ul>
+<p>All of the above procedures can be implemented at once using <code>AclustsCCA</code> function. Among these steps, permutation test is definitely a part that takes the most computational time to run and requires attention when running.</p>
+<p>Therefore, I personally suggest running each part separately to save computational time and memory.</p>
+<div class="section level3">
+<h3 id="41-implement-a-clustering-and-save-it">4.1 Implement A-clustering and save it<a class="anchor" aria-label="anchor" href="#41-implement-a-clustering-and-save-it"></a>
+</h3>
+<p>A-clustering is implemented to identify cluster and this part have to be ran only once. I personally suggest to run this part separately and save it for future use.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cars</span><span class="op">)</span>
-<span class="co">#&gt;      speed           dist       </span>
-<span class="co">#&gt;  Min.   : 4.0   Min.   :  2.00  </span>
-<span class="co">#&gt;  1st Qu.:12.0   1st Qu.: 26.00  </span>
-<span class="co">#&gt;  Median :15.0   Median : 36.00  </span>
-<span class="co">#&gt;  Mean   :15.4   Mean   : 42.98  </span>
-<span class="co">#&gt;  3rd Qu.:19.0   3rd Qu.: 56.00  </span>
-<span class="co">#&gt;  Max.   :25.0   Max.   :120.00</span></code></pre></div>
-<p>You’ll still need to render <code>README.Rmd</code> regularly, to keep <code>README.md</code> up-to-date. <code><a href="https://devtools.r-lib.org/reference/build_rmd.html" class="external-link">devtools::build_readme()</a></code> is handy for this. You could also use GitHub Actions to re-render <code>README.Rmd</code> every time you push. An example workflow can be found here: <a href="https://github.com/r-lib/actions/tree/master/examples" class="external-link uri">https://github.com/r-lib/actions/tree/master/examples</a>.</p>
-<p>You can also embed plots, for example:</p>
-<p>In that case, don’t forget to commit and push the resulting figure files, so they display on GitHub and CRAN.</p>
+<code class="sourceCode R"><span class="co"># Implement A-clustering</span>
+<span class="va">all.clusters.list</span> <span class="op">&lt;-</span> <span class="fu">assign.to.clusters</span><span class="op">(</span>betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">DATA.Y</span><span class="op">)</span>, 
+                                        annot <span class="op">=</span> <span class="va">annot</span>,
+                                        dist.type <span class="op">=</span> <span class="va">dist.type</span>,
+                                        method <span class="op">=</span> <span class="va">Aclust.method</span>,
+                                        thresh.dist <span class="op">=</span> <span class="va">thresh.dist</span>,
+                                        bp.thresh.dist <span class="op">=</span> <span class="va">bp.thresh.dist</span>,
+                                        max.dist <span class="op">=</span> <span class="va">max.dist</span><span class="op">)</span>
+<span class="co"># AclustsCCA only considers clusters with at least two probes</span>
+<span class="va">clusters.list</span> <span class="op">&lt;-</span> <span class="va">all.clusters.list</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">all.clusters.list</span>,<span class="va">length</span><span class="op">)</span><span class="op">!=</span><span class="fl">1</span><span class="op">]</span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="42-obtain-partial-residuals-to-adjust-for-potential-confounders">4.2 Obtain partial residuals to adjust for potential confounders<a class="anchor" aria-label="anchor" href="#42-obtain-partial-residuals-to-adjust-for-potential-confounders"></a>
+</h3>
+<p>When implementing SparseCCA, partial residuals are used to adjust for potential confounders. Again, computing partial residuals have to be ran only once. I personally suggest to run this part separately and save it for future use.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">X.resid</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial.residual.html">partial.residual</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">DATA.X</span>,Z<span class="op">=</span><span class="va">Z</span>,nthread<span class="op">=</span><span class="va">nthread</span><span class="op">)</span>
+<span class="va">Y.resid</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial.residual.html">partial.residual</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">DATA.Y</span>,Z<span class="op">=</span><span class="va">Z</span>,nthread<span class="op">=</span><span class="va">nthread</span><span class="op">)</span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="43-implement-sparsecca-and-permutation-test-on-each-cluster-identified-by-a-clustering">4.3 Implement SparseCCA and permutation test on each cluster identified by A-clustering<a class="anchor" aria-label="anchor" href="#43-implement-sparsecca-and-permutation-test-on-each-cluster-identified-by-a-clustering"></a>
+</h3>
+<p>As list of clusters are provided and partial residuals are computed, <code>AclustsCCA</code> will only run SparseCCA on each cluster identified by A-clustering.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">AclustsCCA.result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/AclustsCCA.html">AclustsCCA</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">X.resid</span>,
+                                Y<span class="op">=</span><span class="va">Y.resid</span>,
+                                clusters.list<span class="op">=</span><span class="va">clusters.list</span>,
+                                <span class="co"># parameters for SparseCCA</span>
+                                Xmethod<span class="op">=</span><span class="va">Xmethod</span>,
+                                Ymethod<span class="op">=</span><span class="va">Ymethod</span>,
+                                <span class="co"># parameters for permutation test for AclustsCCA</span>
+                                maxB<span class="op">=</span><span class="va">maxB</span>,
+                                permute<span class="op">=</span><span class="cn">T</span>,
+                                nthread<span class="op">=</span><span class="fl">3</span><span class="op">)</span> </code></pre></div>
 </div>
 </div>
+
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

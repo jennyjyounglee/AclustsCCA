@@ -2,6 +2,8 @@ pandoc: 2.11.4
 pkgdown: 2.0.1
 pkgdown_sha: ~
 articles:
-  best_vignette_ever: best_vignette_ever.html
-last_built: 2021-12-09T22:05Z
+  Intro_to_Aclust: Intro_to_Aclust.html
+  Intro_to_Partial_Residuals: Intro_to_Partial_Residuals.html
+  Intro_to_SparseCCA: Intro_to_SparseCCA.html
+last_built: 2021-12-10T09:52Z
 

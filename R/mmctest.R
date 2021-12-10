@@ -241,15 +241,6 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
 	if((stopcrit$elapsedsec>0) && (proc.time()[[3]]-timer>=stopcrit$elapsedsec)) { break; }
 	if((stopcrit$maxB>0) && (max(num)>=stopcrit$maxB)) { break; }
 
-
-	if(!is.null(permute.tmp.filepath)){
-	  SAMPLER.TMP.RESULT <- obj
-	  SAMPLER.TMP.RESULT@gensample@data$X <- NULL
-	  SAMPLER.TMP.RESULT@gensample@data$Y <- NULL
-	  SAMPLER.TMP.RESULT@gensample@data$clusters.list <- NULL
-
-	  save(SAMPLER.TMP.RESULT,file=permute.tmp.filepath)
-	}
       } # end while
     }, interrupt = function(interrupt){
       # finish copying if appropriate

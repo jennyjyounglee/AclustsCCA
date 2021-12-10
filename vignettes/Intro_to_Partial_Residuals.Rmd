@@ -1,0 +1,47 @@
+---
+title: "Step 2: Obtain Partial Residuals"
+author: "Jenny Lee"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro_to_partial_residuals}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## 1. What is Partial Residuals?
+
+Partial residuals are .... [@sofer2012multivariate]
+
+## 2. Input Parameters for Partial Residuals
+
+| **`data`** A data matrix with \eqn{n} rows.
+
+| **`Z`** A \eqn{n} by \eqn{r} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of potential confounders.
+
+## 3. Obtain partial residuals to adjust for potential confounders
+
+When implementing SparseCCA, partial residuals are used to adjust for potential confounders. Again, computing partial residuals have to be ran only once. I personally suggest to run this part separately and save it for future use.
+
+```{r,eval=F}
+# Load sample data
+data(sample.data)
+DATA.X <- sample.data$DATA.X # row: subjects (n), column: exposures (p)
+DATA.Y <- sample.data$DATA.Y # row: subjects (n), column: CpG sites (q)
+DATA.Z <- sample.data$DATA.Z # row: subjects (n), column: confounders (r)
+
+X.resid <- partial.residual(data=DATA.X,Z=DATA.Z,nthread=1)
+Y.resid <- partial.residual(data=DATA.Y,Z=DATA.Z,nthread=1)
+save(X.resid,Y.resid,"partial.residual.RData")
+```
+
+## References

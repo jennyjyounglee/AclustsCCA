@@ -1,0 +1,73 @@
+---
+title: "Step 1: Implement A-clustering"
+author: "Jenny Lee"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro_to_Aclust}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## 1. What is A-clustering?
+A-clustering is a statistical method .... [@sofer2013clustering].
+
+
+## 2. Input Parameters for A-clustering
+
+**`Y`** \eqn{q} by \eqn{n} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.
+
+**`annot`** A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if **`clusters.list`** is `NULL`.
+
+**`dist.type`** A type of similarity distance function. Options are "spearman" (default), "pearson" (correlation measures) or "euclid". 
+
+**`Aclust.method`** A type of clustering function. Options are "single", "complete" or "average" (default).
+
+**`thresh.dist`** A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above **`dist.thresh`**. Corresponds to $\bar{D}$ in the **`Aclust`** paper and the default is $0.2$
+
+**`max.dist`** Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to $\bar{d}_{bp}$ in the **`Aclust`** paper and the default is $1000$.
+
+**`bp.thresh.dist`** A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to $\underline{d}_{bp}$ in the **`Aclust`** paper and the default is $999$.
+
+
+## 3. Implementation of A-clustering
+
+```{r, eval=F}
+# Load annotation file
+data(annot) # row: CpG sites
+# Load sample data
+data(sample.data)
+DATA.X <- sample.data$DATA.X # row: subjects (n), column: exposures (p)
+DATA.Y <- sample.data$DATA.Y # row: subjects (n), column: CpG sites (q)
+
+# Settings for Aclust
+dist.type <- "spearman"
+Aclust.method <- "average"
+thresh.dist <- 0.2
+max.dist <- 1000
+bp.thresh.dist <- 999
+
+# Implement A-clustering
+all.clusters.list <- Aclust::assign.to.clusters(betas = t(DATA.Y),
+                                                annot = annot,
+                                                dist.type = dist.type,
+                                                method = Aclust.method,
+                                                thresh.dist = thresh.dist,
+                                                max.dist = max.dist,
+                                                bp.thresh.dist = bp.thresh.dist)
+# We only need clusters with at least two probes
+clusters.list <- all.clusters.list[sapply(all.clusters.list,length)!=1]
+save(clusters.list,"clusters.list.RData") 
+# identical(clusters.list,sample.data$clusters.list) TRUE
+```
+
+## References

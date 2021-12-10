@@ -38,8 +38,16 @@ INPUT
      
     <span class="caret"></span>
   </a>
-  <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/best_vignette_ever.html">This is my Vignette</a>
+  <ul class="dropdown-menu" role="menu"><li class="divider">
+    <li class="dropdown-header">Step by Step Guide</li>
+    <li>
+      <a href="../articles/Intro_to_Aclust.html">Step 1: Implement A-clustering</a>
+    </li>
+    <li>
+      <a href="../articles/Intro_to_Partial_Residuals.html">Step 2: Obtain Partial Residuals</a>
+    </li>
+    <li>
+      <a href="../articles/Intro_to_SparseCCA.html">Step 3: Implement SparseCCA on each clusterg</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
@@ -130,11 +138,14 @@ The original code is accessible https://sites.google.com/view/iwilms/software?au
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">data.list</span> <span class="op">&lt;-</span> <span class="fu"><a href="generate.data.html">generate.data</a></span><span class="op">(</span>n<span class="op">=</span><span class="fl">500</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">data.list</span> <span class="op">&lt;-</span> <span class="fu">generate.data</span><span class="op">(</span>n<span class="op">=</span><span class="fl">500</span><span class="op">)</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in generate.data(n = 500):</span> could not find function "generate.data"</span>
 <span class="r-in"><span class="va">DATA.X</span> <span class="op">&lt;-</span> <span class="va">data.list</span><span class="op">$</span><span class="va">DATA.X</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'data.list' not found</span>
 <span class="r-in"><span class="va">DATA.Y</span> <span class="op">&lt;-</span> <span class="va">data.list</span><span class="op">$</span><span class="va">DATA.Y</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'data.list' not found</span>
 <span class="r-in"><span class="va">SparseCCA.result</span> <span class="op">&lt;-</span> <span class="fu">SparseCCA</span><span class="op">(</span>X<span class="op">=</span><span class="va">DATA.X</span>,Y<span class="op">=</span><span class="va">DATA.Y</span>,Xmethod<span class="op">=</span><span class="st">"SGL"</span>,Ymethod<span class="op">=</span><span class="st">"lasso"</span>,X.groupidx<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">4</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">2</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in SGL(list(x = Xreg, y = Yreg), index = groupidx, type = "linear",     nlam = 20, standardize = F):</span> could not find function "SGL"</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in SparseCCA(X = DATA.X, Y = DATA.Y, Xmethod = "SGL", Ymethod = "lasso",     X.groupidx = c(rep(1, 4), rep(2, 3), rep(3, 2), rep(1, 3))):</span> object 'DATA.X' not found</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">SparseCCA.result</span><span class="op">)</span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in str(SparseCCA.result):</span> object 'SparseCCA.result' not found</span>
 <span class="r-in"><span class="fu">projection.error</span><span class="op">(</span><span class="va">data.list</span><span class="op">$</span><span class="va">TRUE.ALPHA</span>,<span class="va">SparseCCA.result</span><span class="op">$</span><span class="va">ALPHA</span><span class="op">)</span></span>

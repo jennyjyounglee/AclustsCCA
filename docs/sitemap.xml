@@ -10,6 +10,18 @@
     <loc>/articles/index.html</loc>
   </url>
   <url>
+    <loc>/articles/Intro_to_Aclust.html</loc>
+  </url>
+  <url>
+    <loc>/articles/Intro_to_AclustsCCA.html</loc>
+  </url>
+  <url>
+    <loc>/articles/Intro_to_Partial_Residuals.html</loc>
+  </url>
+  <url>
+    <loc>/articles/Intro_to_SparseCCA.html</loc>
+  </url>
+  <url>
     <loc>/authors.html</loc>
   </url>
   <url>
@@ -20,6 +32,9 @@
   </url>
   <url>
     <loc>/reference/AclustsCCASampler-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/annot.html</loc>
   </url>
   <url>
     <loc>/reference/generate.data.html</loc>
@@ -35,6 +50,9 @@
   </url>
   <url>
     <loc>/reference/sampalg-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/sample.data.html</loc>
   </url>
   <url>
     <loc>/reference/Sparse.alternating.html</loc>

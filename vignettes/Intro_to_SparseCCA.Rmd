@@ -1,0 +1,80 @@
+---
+title: "Step 3: Implement SparseCCA on each clusterg"
+author: "Jenny Lee"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro_to_sparsecca}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## 1. What is SparseCCA?
+
+SparseCCA is a statistical method .... [@wilms2016robust, @mai2019iterative].
+
+Fast permutation test ... [@gandy2014mmctest, @gandy2019r]
+
+## 2. Input Parameters for SparseCCA
+
+| **`Xmethod`** A penalty function for the exposure, i.e. penalty function when regressing Y onto X. Options are "lasso", "alasso","gglasso", and "SGL" (default).
+
+| **`Ymethod`** A penalty function for the outcome, i.e. penalty function when regressing X onto Y. Options are "lasso", "alasso","gglasso", "SGL", and "OLS" (default).
+
+| **`init.method`**         Initialization method. Options are "lasso", "OLS", and "SVD" (default).
+
+| **`X.groupidx`**          A vector of length \eqn{p} that indicates grouping structure of exposure \eqn{X}.
+
+| **`Y.groupidx`**          A vector of length \eqn{q} that indicates grouping structure of outcome \eqn{Y}.
+
+| **`standardize `**        A logical flag for exposure \eqn{X} and outcome \eqn{Y} standardization, prior to fitting the model.
+
+| **`max.iter`**            A maximum number of iterations of SparseCCA. The default is $100$.
+
+| **`conv`**                A tolerance value for convergence \eqn{epsilon} of SparseCCA. The default is $10e-2$.
+
+| **`maxnum`** A maximal total number of permutations across all the clusters.
+
+| **`maxB`** A maximal number of permutations for a single cluster.
+
+| **`permute.tmp.filepath`** Filepath to save intermittent permutation results.
+
+| **`permute`** A logical flag for whether to run permutation test or not.
+
+| **`nthread`** A number of threads to parallelize permutation test and implementation of SparseCCA across all the clusters.
+
+| **`FDR.thresh`** FDR threshold. The default is $0.05$.
+
+## 3. Implement SparseCCA and permutation test on each cluster identified by A-clustering
+
+As list of clusters are provided and partial residuals are computed, `AclustsCCA` will only run SparseCCA on each cluster identified by A-clustering.
+
+```{r,eval=F}
+load("clusters.list.RData")
+load("partial.residual.RData")
+
+AclustsCCA.result <- AclustsCCA(X=X.resid,
+                                Y=Y.resid,
+                                clusters.list=clusters.list,
+                                # parameters for SparseCCA
+                                Xmethod=Xmethod,
+                                Ymethod=Ymethod,
+                                X.groupidx=X.groupidx,
+                                # parameters for permutation test for AclustsCCA
+                                maxB=maxB,
+                                permute=TRUE,
+                                nthread=nthread) 
+
+summary.AclustsCCA(AclustsCCA.result)
+```
+
+## References
