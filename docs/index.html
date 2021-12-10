@@ -127,7 +127,7 @@
 <p><strong><code>Y.groupidx</code></strong> A vector of length that indicates grouping structure of outcome .</p>
 <p><strong><code>standardize</code></strong> A logical flag for exposure and outcome standardization, prior to fitting the model.</p>
 <p><strong><code>max.iter</code></strong> A maximum number of iterations of SparseCCA. The default is 100.</p>
-<p><strong><code>conv</code></strong> A tolerance value for convergence of SparseCCA. The default is 10<em>e</em> − 2.</p>
+<p><strong><code>conv</code></strong> A tolerance value for convergence of SparseCCA. The default is 0.01.</p>
 </div>
 </div>
 <div class="section level2">
@@ -154,26 +154,31 @@
 </ul>
 <p>This entire process can be done using the code below, but I personally DO NOT suggest this for computational time and memory. Please read the next section for the suggested way of running <code>AclustsCCA</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">annot</span><span class="op">)</span> <span class="co"># row: CpG sites</span>
-<span class="va">data.list</span> <span class="op">&lt;-</span> <span class="fu">generate.data</span><span class="op">(</span>n<span class="op">=</span><span class="fl">500</span><span class="op">)</span>
+<code class="sourceCode R"><span class="co"># Load annotation file</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">annot</span><span class="op">)</span> <span class="co"># row: CpG sites</span>
+<span class="co"># Load sample data</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sample.data</span><span class="op">)</span>
+<span class="va">DATA.X</span> <span class="op">&lt;-</span> <span class="va">sample.data</span><span class="op">$</span><span class="va">DATA.X</span> <span class="co"># row: subjects (n), column: exposures (p)</span>
+<span class="va">DATA.Y</span> <span class="op">&lt;-</span> <span class="va">sample.data</span><span class="op">$</span><span class="va">DATA.Y</span> <span class="co"># row: subjects (n), column: CpG sites (q)</span>
+<span class="va">DATA.Z</span> <span class="op">&lt;-</span> <span class="va">sample.data</span><span class="op">$</span><span class="va">DATA.Z</span> <span class="co"># row: subjects (n), column: confounders (r)</span>
 
-<span class="va">DATA.X</span> <span class="op">&lt;-</span> <span class="va">data.list</span><span class="op">$</span><span class="va">DATA.X</span> <span class="co"># row: subjects (n), column: Metals (p)</span>
-<span class="va">DATA.Y</span> <span class="op">&lt;-</span> <span class="va">data.list</span><span class="op">$</span><span class="va">DATA.Y</span> <span class="co"># row: subjects (n), column: CpG sites (q)</span>
-
-
+<span class="co"># Settings for Aclust</span>
 <span class="va">dist.type</span> <span class="op">&lt;-</span> <span class="st">"spearman"</span>
-<span class="va">Aclust.method</span> <span class="op">&lt;-</span><span class="st">"average"</span>
-<span class="va">thresh.dist</span> <span class="op">&lt;-</span><span class="fl">0.2</span>
-<span class="va">max.dist</span> <span class="op">&lt;-</span><span class="fl">1000</span>
-<span class="va">bp.thresh.dist</span> <span class="op">&lt;-</span><span class="fl">999</span>
+<span class="va">Aclust.method</span> <span class="op">&lt;-</span> <span class="st">"average"</span>
+<span class="va">thresh.dist</span> <span class="op">&lt;-</span> <span class="fl">0.2</span>
+<span class="va">max.dist</span> <span class="op">&lt;-</span> <span class="fl">1000</span>
+<span class="va">bp.thresh.dist</span> <span class="op">&lt;-</span> <span class="fl">999</span>
 
-<span class="va">Xmethod</span> <span class="op">&lt;-</span> <span class="st">"lasso"</span>
-<span class="va">Ymethod</span> <span class="op">&lt;-</span> <span class="st">"OLS"</span>
-<span class="va">maxB</span> <span class="op">&lt;-</span> <span class="fl">300</span>
-<span class="va">nthread</span> <span class="op">&lt;-</span> <span class="fl">2</span>
+<span class="co"># Settings for SparseCCA</span>
+<span class="va">Xmethod</span> <span class="op">&lt;-</span> <span class="st">"SGL"</span>
+<span class="va">Ymethod</span> <span class="op">&lt;-</span> <span class="st">"lasso"</span>
+<span class="va">X.groupidx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">5</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">5</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">5</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
+<span class="va">maxB</span> <span class="op">&lt;-</span> <span class="fl">500</span>
+<span class="va">nthread</span> <span class="op">&lt;-</span> <span class="fl">1</span>
 
 <span class="va">AclustsCCA.result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/AclustsCCA.html">AclustsCCA</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">DATA.X</span>,
                                 Y<span class="op">=</span><span class="va">DATA.Y</span>,
+                                Z<span class="op">=</span><span class="va">DATA.Z</span>,
                                 clusters.list<span class="op">=</span><span class="cn">NULL</span>,
                                 annot<span class="op">=</span><span class="va">annot</span>,
                                 <span class="co"># parameters for A-clustering</span>
@@ -185,9 +190,19 @@
                                 <span class="co"># parameters for SparseCCA</span>
                                 Xmethod<span class="op">=</span><span class="va">Xmethod</span>,
                                 Ymethod<span class="op">=</span><span class="va">Ymethod</span>,
+                                X.groupidx<span class="op">=</span><span class="va">X.groupidx</span>,
                                 <span class="co"># parameters for permutation test for AclustsCCA</span>
+                                permute<span class="op">=</span><span class="cn">TRUE</span>,
                                 maxB<span class="op">=</span><span class="va">maxB</span>,
-                                nthread<span class="op">=</span><span class="va">nthread</span><span class="op">)</span>                         </code></pre></div>
+                                nthread<span class="op">=</span><span class="va">nthread</span><span class="op">)</span>
+
+<span class="fu">summary.AclustsCCA</span><span class="op">(</span><span class="va">AclustsCCA.result</span><span class="op">)</span>
+<span class="co"># AclustsCCA.result$permutation.result@B</span>
+<span class="co"># AclustsCCA.result$permutation.result</span>
+<span class="co"># test.idx &lt;- which(hBH(AclustsCCA.result$permutation.result@g / AclustsCCA.result$permutation.result@num,0.05))</span>
+<span class="co"># true.idx &lt;- which(sapply(AclustsCCA.result$clusters.list,function(x) sum(x%in%TRUE.CpGs))!=0)</span>
+<span class="co"># lapply(AclustsCCA.result$ALPHA.observed[test.idx],function(x) names(x)[x!=0])</span>
+<span class="co"># lapply(AclustsCCA.result$BETA.observed[test.idx],function(x) names(x)[x!=0])</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="4-suggestions-on-how-to-run-aclustscca">4. Suggestions on how to run AclustsCCA<a class="anchor" aria-label="anchor" href="#4-suggestions-on-how-to-run-aclustscca"></a>
@@ -209,14 +224,14 @@
 <p>A-clustering is implemented to identify cluster and this part have to be ran only once. I personally suggest to run this part separately and save it for future use.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Implement A-clustering</span>
-<span class="va">all.clusters.list</span> <span class="op">&lt;-</span> <span class="fu">assign.to.clusters</span><span class="op">(</span>betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">DATA.Y</span><span class="op">)</span>, 
-                                        annot <span class="op">=</span> <span class="va">annot</span>,
-                                        dist.type <span class="op">=</span> <span class="va">dist.type</span>,
-                                        method <span class="op">=</span> <span class="va">Aclust.method</span>,
-                                        thresh.dist <span class="op">=</span> <span class="va">thresh.dist</span>,
-                                        bp.thresh.dist <span class="op">=</span> <span class="va">bp.thresh.dist</span>,
-                                        max.dist <span class="op">=</span> <span class="va">max.dist</span><span class="op">)</span>
-<span class="co"># AclustsCCA only considers clusters with at least two probes</span>
+<span class="va">all.clusters.list</span> <span class="op">&lt;-</span> <span class="fu">Aclust</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Aclust/man/assign.to.clusters.html" class="external-link">assign.to.clusters</a></span><span class="op">(</span>betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">DATA.Y</span><span class="op">)</span>,
+                                                annot <span class="op">=</span> <span class="va">annot</span>,
+                                                dist.type <span class="op">=</span> <span class="va">dist.type</span>,
+                                                method <span class="op">=</span> <span class="va">Aclust.method</span>,
+                                                thresh.dist <span class="op">=</span> <span class="va">thresh.dist</span>,
+                                                max.dist <span class="op">=</span> <span class="va">max.dist</span>,
+                                                bp.thresh.dist <span class="op">=</span> <span class="va">bp.thresh.dist</span><span class="op">)</span>
+<span class="co"># We only need clusters with at least two probes</span>
 <span class="va">clusters.list</span> <span class="op">&lt;-</span> <span class="va">all.clusters.list</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">all.clusters.list</span>,<span class="va">length</span><span class="op">)</span><span class="op">!=</span><span class="fl">1</span><span class="op">]</span></code></pre></div>
 </div>
 <div class="section level3">
@@ -224,8 +239,8 @@
 </h3>
 <p>When implementing SparseCCA, partial residuals are used to adjust for potential confounders. Again, computing partial residuals have to be ran only once. I personally suggest to run this part separately and save it for future use.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">X.resid</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial.residual.html">partial.residual</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">DATA.X</span>,Z<span class="op">=</span><span class="va">Z</span>,nthread<span class="op">=</span><span class="va">nthread</span><span class="op">)</span>
-<span class="va">Y.resid</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial.residual.html">partial.residual</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">DATA.Y</span>,Z<span class="op">=</span><span class="va">Z</span>,nthread<span class="op">=</span><span class="va">nthread</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">X.resid</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial.residual.html">partial.residual</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">DATA.X</span>,Z<span class="op">=</span><span class="va">DATA.Z</span>,nthread<span class="op">=</span><span class="fl">1</span><span class="op">)</span>
+<span class="va">Y.resid</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial.residual.html">partial.residual</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">DATA.Y</span>,Z<span class="op">=</span><span class="va">DATA.Z</span>,nthread<span class="op">=</span><span class="fl">1</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="43-implement-sparsecca-and-permutation-test-on-each-cluster-identified-by-a-clustering">4.3 Implement SparseCCA and permutation test on each cluster identified by A-clustering<a class="anchor" aria-label="anchor" href="#43-implement-sparsecca-and-permutation-test-on-each-cluster-identified-by-a-clustering"></a>
@@ -238,10 +253,11 @@
                                 <span class="co"># parameters for SparseCCA</span>
                                 Xmethod<span class="op">=</span><span class="va">Xmethod</span>,
                                 Ymethod<span class="op">=</span><span class="va">Ymethod</span>,
+                                X.groupidx<span class="op">=</span><span class="va">X.groupidx</span>,
                                 <span class="co"># parameters for permutation test for AclustsCCA</span>
                                 maxB<span class="op">=</span><span class="va">maxB</span>,
-                                permute<span class="op">=</span><span class="cn">T</span>,
-                                nthread<span class="op">=</span><span class="fl">3</span><span class="op">)</span> </code></pre></div>
+                                permute<span class="op">=</span><span class="cn">TRUE</span>,
+                                nthread<span class="op">=</span><span class="va">nthread</span><span class="op">)</span> </code></pre></div>
 </div>
 </div>
 
