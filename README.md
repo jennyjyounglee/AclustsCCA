@@ -20,7 +20,9 @@ And the development version from [GitHub](https://github.com/) with:
 ``` r
 # install.packages("devtools")
 devtools::install_github("jennyjyounglee/AclustsCCA")
+devtools::install_github("tamartsi/Aclust")
 library(AclustsCCA)
+library(Aclust)
 ```
 
 ## 2. Input Parameters for AclustsCCA
@@ -150,7 +152,7 @@ Xmethod <- "lasso"
 Ymethod <- "lasso"
 X.groupidx <- c(rep(1,5),rep(2,5),rep(3,5),rep(4,5))
 maxB <- 500
-nthread <- 1
+nthread <- 2
 
 AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 Y=DATA.Y,
