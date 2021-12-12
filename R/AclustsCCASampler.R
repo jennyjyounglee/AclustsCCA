@@ -36,13 +36,13 @@ setMethod("getSamples", signature(obj="AclustsCCASampler"),
                 doParallel::registerDoParallel(cl)
                 result[,b] <- foreach(i = 1:length(ind), .combine = 'c') %dopar% {
                   Y.subset <- Y[, clusters.list[[i]]] # n X q matrix
-                  SparseCCA(X=X_permute,Y=Y.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,Y.groupidx=settings$Y.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv)$cancors.spearman
+                  SparseCCA(X=X_permute,Y=Y.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv)$cancors.spearman
                 }
                 parallel::stopCluster(cl)
               } else{  # Don't run in parallel
                 for(i in 1:length(ind)){
                   Y.subset <- Y[, clusters.list[[i]]] # n X q matrix
-                  result[i,b] <- SparseCCA(X=X_permute,Y=Y.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,Y.groupidx=settings$Y.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv)$cancors.spearman
+                  result[i,b] <- SparseCCA(X=X_permute,Y=Y.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv)$cancors.spearman
                 }
               }
             }

@@ -18,6 +18,8 @@
 #'   - "SGL": Sparse Group Lasso
 #'   - "OLS": Ordinary Least Square
 #'
+#' @import glmnet SGL gglasso
+#'
 #' @examples
 #' data.list <- generate.data(n=500)
 #' DATA.X <- data.list$DATA.X
@@ -43,7 +45,7 @@ Sparse.alternating<-function(Xreg,Yreg,method,groupidx=NULL){
 
   ## LASSO Fit
   if(method == "lasso"){
-    FIT<-glmnet(y=Yreg,x=Xreg,family="gaussian",intercept=F,standardize=F)
+    FIT<-glmnet::glmnet(y=Yreg,x=Xreg,family="gaussian",intercept=F,standardize=F)
   # if (is.integer(which(FIT$df!=0)) && length(which(FIT$df!=0)) == 0L) {
   #   # Smaller lambda sequence necessary
   #   FIT<-glmnet(y=Yreg,x=Xreg_st,family="gaussian",intercept=T)
@@ -54,21 +56,21 @@ Sparse.alternating<-function(Xreg,Yreg,method,groupidx=NULL){
   #   LAMBDA<-FIT$lambda[which(FIT$df!=0)] # lambda values
   # }
   } else if (method == "alasso"){
-    ridge.cv.FIT <- cv.glmnet(x = Xreg,y = Yreg, type.measure = "mse",nfold = 5,alpha = 0,intercept=F,standardize=F)
+    ridge.cv.FIT <- glmnet::cv.glmnet(x = Xreg,y = Yreg, type.measure = "mse",nfold = 5,alpha = 0,intercept=F,standardize=F)
     best_ridge_coef <- as.numeric(coef(ridge.cv.FIT, s = ridge.cv.FIT$lambda.min))[-1]
     FIT <- glmnet(x =Xreg,y =Yreg,alpha = 1,penalty.factor = 1 / abs(best_ridge_coef),intercept=F,standardize=F)
   } else if (method == "SGL"){
-    FIT<-SGL(list(x=Xreg,y=Yreg), index = groupidx, type = "linear", nlam = 20,standardize=F) # ,intercept=F
+    FIT<-SGL::SGL(list(x=Xreg,y=Yreg), index = groupidx, type = "linear", nlam = 20,standardize=F) # ,intercept=F
     FIT$df <- apply(FIT$beta,2,function(x) sum(x !=0))
     if (is.integer(which(FIT$df!=0)) && length(which(FIT$df!=0)) == 0L){
-      FIT<-SGL(list(x=Xreg,y=Yreg), index = groupidx, type = "linear", nlam = 100,standardize=F)}
+      FIT<-SGL::SGL(list(x=Xreg,y=Yreg), index = groupidx, type = "linear", nlam = 100,standardize=F)}
     FIT$lambda <-FIT$lambdas
   } else if (method == "gglasso"){ # automatically standardize? group idx should be ordered. not working properly
-    FIT<-gglasso(y=Yreg,x=Xreg,group=groupidx,loss="ls",intercept=F) # ,standardize=F
+    FIT<-gglasso::gglasso(y=Yreg,x=Xreg,group=groupidx,loss="ls",intercept=F) # ,standardize=F
     if (is.integer(which(FIT$df!=0)) && length(which(FIT$df!=0)) == 0L){
-      FIT<-gglasso(y=Yreg,x=Xreg,group=groupidx,loss="ls",nlambda=300)}
+      FIT<-gglasso::gglasso(y=Yreg,x=Xreg,group=groupidx,loss="ls",nlambda=300)}
   } else{
-    print("Condition is wrong")
+    print("Penalty function is wrong")
   }
   COEFhat<-matrix(FIT$beta[,which(FIT$df!=0)],nrow=ncol(Xreg)) # estimated coefficients
   LAMBDA<-FIT$lambda[which(FIT$df!=0)] # lambda values

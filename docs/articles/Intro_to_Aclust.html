@@ -80,7 +80,7 @@
       <h1 data-toc-skip>Step 1: Implement A-clustering</h1>
                         <h4 data-toc-skip class="author">Jenny Lee</h4>
             
-            <h4 data-toc-skip class="date">2021-12-10</h4>
+            <h4 data-toc-skip class="date">2021-12-11</h4>
       
       
       <div class="hidden name"><code>Intro_to_Aclust.Rmd</code></div>
@@ -93,17 +93,18 @@
 <h2 id="what-is-a-clustering">1. What is A-clustering?<a class="anchor" aria-label="anchor" href="#what-is-a-clustering"></a>
 </h2>
 <p>A-clustering is a statistical method …. <span class="citation">(Sofer et al. 2013)</span>.</p>
+<p>Here is the link for more detailed explanation of the <a href="https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true" class="external-link">A-clustering method</a> and <a href="https://github.com/tamartsi/Aclust/tree/master/man" class="external-link">Aclust R package</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="input-parameters-for-a-clustering">2. Input Parameters for A-clustering<a class="anchor" aria-label="anchor" href="#input-parameters-for-a-clustering"></a>
 </h2>
 <p><strong><code>Y</code></strong>  by  outcome data matrix, where  is sample size and  is number of outcomes.</p>
-<p><strong><code>annot</code></strong> A preloaded annotation file that includes columns “IlmnID,” “Coordinate_37,” “Islands_Name,” “Relation_to_Island,” “UCSC_RefGene_Name.” Only needed if <strong><code>clusters.list</code></strong> is <code>NULL</code>.</p>
+<p><strong><code>annot</code></strong> A preloaded annotation file that includes columns “IlmnID,” “Coordinate_37,” “Islands_Name,” “Relation_to_Island,” “UCSC_RefGene_Name.”</p>
 <p><strong><code>dist.type</code></strong> A type of similarity distance function. Options are “spearman” (default), “pearson” (correlation measures) or “euclid.”</p>
 <p><strong><code>Aclust.method</code></strong> A type of clustering function. Options are “single,” “complete” or “average” (default).</p>
-<p><strong><code>thresh.dist</code></strong> A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above <strong><code>dist.thresh</code></strong>. Corresponds to <span class="math inline">\(\bar{D}\)</span> in the <strong><code>Aclust</code></strong> paper and the default is <span class="math inline">\(0.2\)</span></p>
-<p><strong><code>max.dist</code></strong> Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to <span class="math inline">\(\bar{d}_{bp}\)</span> in the <strong><code>Aclust</code></strong> paper and the default is <span class="math inline">\(1000\)</span>.</p>
-<p><strong><code>bp.thresh.dist</code></strong> A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to <span class="math inline">\(\underline{d}_{bp}\)</span> in the <strong><code>Aclust</code></strong> paper and the default is <span class="math inline">\(999\)</span>.</p>
+<p><strong><code>thresh.dist</code></strong> A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above <strong><code>dist.thresh</code></strong>. Corresponds to <span class="math inline">\(\bar{D}\)</span> in the <a href="https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true" class="external-link">A-clustering paper</a> paper and the default is <span class="math inline">\(0.2\)</span></p>
+<p><strong><code>max.dist</code></strong> Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to <span class="math inline">\(\bar{d}_{bp}\)</span> in the <a href="https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true" class="external-link">A-clustering paper</a> paper and the default is <span class="math inline">\(1000\)</span>.</p>
+<p><strong><code>bp.thresh.dist</code></strong> A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to <span class="math inline">\(\underline{d}_{bp}\)</span> in the <a href="https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true" class="external-link">A-clustering paper</a> and the default is <span class="math inline">\(999\)</span>.</p>
 </div>
 <div class="section level2">
 <h2 id="implementation-of-a-clustering">3. Implementation of A-clustering<a class="anchor" aria-label="anchor" href="#implementation-of-a-clustering"></a>

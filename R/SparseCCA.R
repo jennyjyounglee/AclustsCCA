@@ -19,15 +19,12 @@
 #' @param Ymethod             : penalty function for the outcome, i.e. penalty function when regressing X onto Y. Possible values are:
 #'   - "lasso": Lasso
 #'   - "alasso": Adaptive Lasso
-#'   - "gglasso": Group Lasso
-#'   - "SGL": Sparse Group Lasso
 #'   - "OLS": Ordinary Least Square
 #' @param init.method         : "Possible two values are:
 #'   - "lasso": When high-dimensional exposure data (i.e. n<p)
 #'   - "OLS": Ordinary Least Square
 #'   - "SVD": Singular Value Decomposition
 #' @param X.groupidx          : A vector of length \eqn{p} that indicates grouping structure of exposure `X`
-#' @param Y.groupidx          : A vector of length \eqn{q} that indicates grouping structure of outcome `Y`
 #' @param standardize         : A standardization (center and scale) of exposure `X` and outcome `Y`
 #' @param max.iter            : A maximum number of iterations
 #' @param conv                : A tolerance value for convergence \eqn{epsilon}
@@ -42,6 +39,7 @@
 #'   - lamdbaB        : A numeric value of the sparsity parameter lambdaB
 #'   - it             : Number of iterations until convergence
 #'
+#' @import glmnet
 #' @export
 #'
 #' @examples
@@ -55,7 +53,7 @@
 #'
 #'
 
-SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("lasso","alasso","SGL","OLS"),init.method="SVD",X.groupidx=NULL,Y.groupidx=NULL,standardize=T,max.iter=50,conv=5*10^-2){
+SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("lasso","alasso","OLS"),init.method="SVD",X.groupidx=NULL,standardize=T,max.iter=50,conv=5*10^-2){
   ### Function to perform Sparse Canonical Correlation Analysis using alternating regressions
 
   ### AUXILIARY FUNCTIONS
@@ -103,7 +101,7 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
       decomp<-eigen(as.matrix(hugefit$cov[[1]]))
     }
     B.PRINCOMP<-X_data%*%decomp$vectors[,1]
-    LASSOFIT_init<-glmnet(y=c(B.PRINCOMP),x=Y_data,family="gaussian",lambda=lambdaBseq)
+    LASSOFIT_init<-glmnet::glmnet(y=c(B.PRINCOMP),x=Y_data,family="gaussian",lambda=lambdaBseq)
     B.STARTING<-matrix(LASSOFIT_init$beta[,which(LASSOFIT_init$df!=0)],nrow=ncol(Y_data))
     if(all(B.STARTING==0)){
       LASSOFIT_init<-glmnet(y=c(B.PRINCOMP),x=Y_data,family="gaussian",lambda=10^-6)
@@ -141,7 +139,7 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
       FIT.B$COEF_FINAL <- coef(FIT.B)
       FIT.B$LAMBDA_FINAL <- NA
     } else{
-      FIT.B<-Sparse.alternating(Xreg=Y_data,Yreg=X_data%*%AHAT_FINAL,method=Ymethod,groupidx=Y.groupidx)
+      FIT.B<-Sparse.alternating(Xreg=Y_data,Yreg=X_data%*%AHAT_FINAL,method=Ymethod)
     }
     BHAT_FINAL<-FIT.B$COEF_FINAL
     if(sum(BHAT_FINAL)==0) {lambdaB_ALL[it]<-NA; break} else{lambdaB_ALL[it]<-FIT.B$LAMBDA_FINAL}

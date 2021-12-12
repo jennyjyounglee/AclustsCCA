@@ -1,30 +1,28 @@
-
-#' @title
-#' Sequential implementation of the Monte Carlo test with p-value buckets.
-#'
-#' @description
-#' Class which creates an object of type "mmctestres". Objects can be created by calls of the form.
-#'
-#' @include simctest.R
-#'
-#'
-#' @examples
-#'   fun <- function(ind,n,data) sapply(1:length(ind), function(i) sum(runif(n[i])<=data[ind[i]]));
-#'   i <- mmctSampler(fun,num=500,data=runif(500));
-#'   a <- mmctest(h=hBH);
-#'   a <- run(a, i, maxsteps=list(maxnum=1000000,undecided=10));
-
 # source("simctest/R/simctest.r");
 
 # mmctest -- Multiple Monte-Carlo Tests
-
-
-
-
-
 # export: mmctest, hBH, hPC, hIndep
 # some FDR controlling procedures
 
+##' @name mmctest
+##' @rdname mmctest
+##' @aliases hBH
+##' @aliases hPC
+##' @aliases hBonferroni
+##' @aliases tau
+##' @aliases hStepUp
+##' @aliases hStepDown
+##' @aliases pEstimate
+##'
+##' @title Functions associated with mmctest
+##' @description Read \href{https://cran.r-project.org/web/packages/simctest/index.html}{simctest R package} for more detailed explanation.
+##' @include simctest.R
+##'
+##' @param p
+NULL
+
+##' @rdname mmctest
+##' @export
 # FDR control by Benjamini-Hochberg: This takes into account of ties
 hBH <- function(p, threshold) {
   p.rank <- match(p, sort(unique(p)))
@@ -40,6 +38,8 @@ hBH <- function(p, threshold) {
 #     return(rank(p) <= max( c(which(sort(p)<=(1:length(p))*threshold/length(p)),-1) ));
 # }
 
+##' @rdname mmctest
+##' @export
 # FDR control by Pounds&Cheng
 hPC <- function(p, threshold) {
 
@@ -48,6 +48,8 @@ hPC <- function(p, threshold) {
   return( rank(p) <= max( c(which(sort(p)<=(1:length(p))*threshold/ (pi0_hat*m) ),-1) ));
 }
 
+##' @rdname mmctest
+##' @export
 # independent testing via Bonferroni
 hBonferroni <- function(p, threshold) {
 
@@ -55,6 +57,8 @@ hBonferroni <- function(p, threshold) {
   return(p<=threshold/m);
 }
 
+##' @rdname mmctest
+##' @export
 tau <- function(p,threshold) {
   m <- length(p);
 
@@ -74,10 +78,14 @@ tau <- function(p,threshold) {
   return(t);
 }
 
+##' @rdname mmctest
+##' @export
 hStepUp <- function(p, threshold) {
   return(rank(p) <= max(c(which(sort(p)<=tau(p,threshold)),-1)) );
 }
 
+##' @rdname mmctest
+##' @export
 hStepDown <- function(p, threshold) {
   return(rank(p) <= min(c(which(sort(p)>tau(p,threshold)), length(p))) );
 }
@@ -268,10 +276,13 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
   }
 )
 
+
 # cont offers four stopping criteria given as list "steps"
 # steps=list(maxit=0, maxnum=0, undecided=0, elapsedsec=0)
 # corresonding to a maximal number of iterations, maximal number of samples drawn, number of yet undecided hypotheses, elapsed time
 # setMethod("cont", signature(data="mmctestres"), function(data, steps=list(maxit=0, maxnum=0, undecided=0, elapsedsec=0)) {
+##' @rdname mmctest
+##' @export
 setMethod("cont", signature(data="mmctestres"), function(data, steps=list(maxit=0, maxnum=0, undecided=0, elapsedsec=0, maxB=0)) {
 
     if(length(setdiff(ls(steps),c("maxit","maxnum","undecided","elapsedsec","maxB")))>0) { stop("parameter steps contains invalid data"); }
@@ -300,6 +311,8 @@ setMethod("show", signature(object="mmctestres"), function(object) {
   }
 )
 
+##' @rdname mmctest
+##' @export
 setGeneric("pEstimate", def=function(obj){standardGeneric("pEstimate")})
 setMethod("pEstimate", signature(obj="mmctestres"), function(obj) {
     return(obj@g/obj@num);
@@ -307,6 +320,8 @@ setMethod("pEstimate", signature(obj="mmctestres"), function(obj) {
   }
 )
 
+##' @rdname mmctest
+##' @export
 setGeneric("rejProb", def=function(obj){standardGeneric("rejProb")})
 setMethod("rejProb", signature(obj="mmctestres"), function(obj) {
 
@@ -314,6 +329,8 @@ setMethod("rejProb", signature(obj="mmctestres"), function(obj) {
   }
 )
 
+##' @rdname mmctest
+##' @export
 setGeneric("confidenceLimits", def=function(obj){standardGeneric("confidenceLimits")})
 setMethod("confidenceLimits", signature(obj="mmctestres"), function(obj) {
 
@@ -324,6 +341,8 @@ setMethod("confidenceLimits", signature(obj="mmctestres"), function(obj) {
   }
 )
 
+##' @rdname mmctest
+##' @export
 setGeneric("testResult", def=function(obj){standardGeneric("testResult")})
 setMethod("testResult", signature(obj="mmctestres"), function(obj) {
 
@@ -383,6 +402,8 @@ setMethod("run", signature(alg="mmctest", gensample="mmctSamplerGeneric"), funct
   }
 )
 
+##' @rdname mmctest
+##' @export
 # pseudo constructor
 mmctest <- function(epsilon=0.01, threshold=0.1, r=10000, h, thompson=F, R=1000) {
 

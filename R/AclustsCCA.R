@@ -21,7 +21,6 @@
 #' @param Ymethod A penalty function for the outcome, i.e. penalty function when regressing X onto Y. Options are "lasso", "alasso","gglasso", "SGL", and "OLS" (default).
 #' @param init.method         Initialization method. Options are "lasso", "OLS", and "SVD" (default).
 #' @param X.groupidx          A vector of length \eqn{p} that indicates grouping structure of exposure \eqn{X}.
-#' @param Y.groupidx          A vector of length \eqn{q} that indicates grouping structure of outcome \eqn{Y}.
 #' @param standardize         A logical flag for exposure \eqn{X} and outcome \eqn{Y} standardization, prior to fitting the model.
 #' @param max.iter            A maximum number of iterations of SparseCCA. The default is 100.
 #' @param conv                A tolerance value for convergence \eqn{epsilon} of SparseCCA. The default is 10e-2.
@@ -41,13 +40,14 @@
 #'   - permutation.result     : A \code{mmctest} object that contains permutation results.
 #'   - settings               : A settings used for the analysis.
 #'
+#' @import Aclust parallel doSNOW foreach
 #' @export
 #'
 #' @examples
 #'
 #'
 #'
-AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,annot=NULL,dist.type="spearman",Aclust.method="average",thresh.dist=0.2,max.dist=1000,bp.thresh.dist=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,Y.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,permute=T,nthread=2){
+AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,annot=NULL,dist.type="spearman",Aclust.method="average",thresh.dist=0.2,max.dist=1000,bp.thresh.dist=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,h=hBH,permute=T,nthread=2){
   if(is.null(clusters.list)){
     ##########################################################################
     # (1) Implement Aclustering
@@ -68,14 +68,16 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
                    Ymethod=Ymethod,
                    standardize=standardize,
                    X.groupidx=X.groupidx,
-                   Y.groupidx=Y.groupidx,
                    init.method=init.method,
                    max.iter=max.iter,
                    conv=conv,
                    maxnum=maxnum,
                    maxB=maxB,
+                   FDR.thresh=FDR.thresh,
+                   h=h,
                    permute=permute,
-                   nthread=nthread)
+                   nthread=nthread,
+                   FDR.thresh=FDR.thresh)
 
   ##########################################################################
   # (2) Take partial residuals to take into account of confounders
@@ -104,14 +106,14 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
     # Implement Sparse CCA on observed data
     AclustsCCA.observed <- foreach(cluster.idx = 1:length(clusters.list),.options.snow = opts,.packages = "AclustsCCA") %dopar% {
       Y.resid.subset <- Y.resid[, clusters.list[[cluster.idx]]]
-      return(SparseCCA(X=X.resid,Y=Y.resid.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,Y.groupidx=settings$Y.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv))
+      return(SparseCCA(X=X.resid,Y=Y.resid.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv))
     }
     parallel::stopCluster(cl)
   }else{  # Don't run in parallel
     AclustsCCA.observed <- lapply(1:length(clusters.list), function(cluster.idx) {
       cat("[Observed data: SparseCCA] cluster.idx = ", cluster.idx, "\n")
-      Y.resid.subset <- Y[, clusters.list[[cluster.idx]]]
-      return(SparseCCA(X=X.resid,Y=Y.resid.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,Y.groupidx=settings$Y.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv))
+      Y.resid.subset <- Y.resid[, clusters.list[[cluster.idx]]]
+      return(SparseCCA(X=X.resid,Y=Y.resid.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv))
     })
 }
 
@@ -132,7 +134,7 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
                       TestStat.observed=cancors.observed,
                       settings=settings)
     AclustsCCASampler.run <- new("AclustsCCASampler", data=data.sCCA)
-    alg <- mmctest(h=hBH, threshold=FDR.thresh)
+    alg <- mmctest(h=h, threshold=FDR.thresh)
 
     # (3-2) Run mcctest using AclustsCCASampler and define temporary file path
     permute.result <- run(alg, AclustsCCASampler.run, maxsteps=list(undecided=0,maxnum=maxnum,maxB=maxB))
@@ -146,16 +148,23 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
     permute.result <- NA
   }
 
-  if(is.null(annot)){ # clusters.list provided initially
-    clusters.list <- NULL
-  }
-
   # (3) Return
-  return(list("clusters.list"=clusters.list,
-              "ALPHA.observed"=ALPHA.observed,
-              "BETA.observed"=BETA.observed,
-              "cancors.observed"=cancors.observed,
-              "permutation.result"=permute.result,
-              "settings"=settings))
+  if(!is.null(Z)){
+    return(list("clusters.list"=clusters.list,
+                "ALPHA.observed"=ALPHA.observed,
+                "BETA.observed"=BETA.observed,
+                "cancors.observed"=cancors.observed,
+                "permutation.result"=permute.result,
+                "settings"=settings,
+                "X.resid"=X.resid,
+                "Y.resid"=Y.resid))
+  } else{
+    return(list("clusters.list"=clusters.list,
+                "ALPHA.observed"=ALPHA.observed,
+                "BETA.observed"=BETA.observed,
+                "cancors.observed"=cancors.observed,
+                "permutation.result"=permute.result,
+                "settings"=settings))
+  }
 }
 

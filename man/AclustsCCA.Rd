@@ -21,13 +21,13 @@ AclustsCCA(
   Ymethod = "OLS",
   standardize = T,
   X.groupidx = NULL,
-  Y.groupidx = NULL,
   init.method = "SVD",
   max.iter = 100,
   conv = 10^-2,
   maxnum = NULL,
   maxB = 10000,
   FDR.thresh = 0.05,
+  h = hBH,
   permute = T,
   nthread = 2
 )
@@ -60,8 +60,6 @@ AclustsCCA(
 \item{standardize}{A logical flag for exposure \eqn{X} and outcome \eqn{Y} standardization, prior to fitting the model.}
 
 \item{X.groupidx}{A vector of length \eqn{p} that indicates grouping structure of exposure \eqn{X}.}
-
-\item{Y.groupidx}{A vector of length \eqn{q} that indicates grouping structure of outcome \eqn{Y}.}
 
 \item{init.method}{Initialization method. Options are "lasso", "OLS", and "SVD" (default).}
 

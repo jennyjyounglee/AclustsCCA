@@ -10,9 +10,9 @@ A \code{data.table} with 6 column, which are:
 \item{IlmnID}{a character vector of IlmnID}
 \item{CHR}{a numeric vector of chromosome containing the CpG}
 \item{Coordinate_37}{a numeric vector of chromosomal coordinates of the CpG}
-\item{UCSC_RefGene_Name}{a character vector of Target gene name(s)}
 \item{Islands_Name}{a character vector of chromosomal coordinates of the CpG Island}
 \item{Relation_to_Island}{a character vector of the location of the CpG relative to the CpG island}
+\item{UCSC_RefGene_Name}{a character vector of Target gene name(s)}
 }
 }
 \usage{

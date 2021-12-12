@@ -5,7 +5,7 @@ Version: 0.1.0
 Author: Jenny Lee
 Maintainer: Jenny Lee <jenny_lee@g.harvard.edu>
 Description: Provides a framework for estimating the assocation between multiple exposures and high-dimensional DNA methylation outcomes.
-License: What license is it under?
+License: GPL-3
 Language: en-US
 Imports: 
     stats,
@@ -46,6 +46,6 @@ Collate:
     'annot.R'
     'partial.residual.R'
     'sample.data.R'
-    'summary.Aclustering.R'
-    'summary.AclustsCCA.R'
+    'summary_Aclustering.R'
+    'summary_AclustsCCA.R'
     'utilis.R'

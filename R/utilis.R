@@ -8,6 +8,7 @@ BIC<-function(U,Y.data,X.data){
   return(BIC)
 }
 
+##' @export
 ### Calculate projection error
 projection.error<-function(x,y){
   sqrt(sum((x%*%solve(t(x)%*%x)%*%t(x) - y%*%solve(t(y)%*%y)%*%t(y))^2))

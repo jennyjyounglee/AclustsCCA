@@ -1,22 +1,19 @@
 
 #' @title
-#' Summarize the A-clustering result
+#' Create a table that summarizes A-clustering result
 #'
 #' @description
-#' Implement an iterative penalized least squares approach to sparse canonical correlation analysis (SparseCCA)
-#' with various penalty functions
+#' This function creates a table that summarizes A-clustering result.
 #'
 #'
-#'
-#' ### INPUT
-#' @param clusters.list       : A list of clusters with CpG sites, each item is a cluster that contains a set of probes
-#' @param annot               : A preloaded annotation file that includes columns the below name. For more information, \url{https://support.illumina.com/content/dam/illumina-support/documents/downloads/productfiles/methylationepic/infinium-methylationepic-manifest-column-headings.pdf}.
-#'   - IlmnID: The IlmnID
-#'   - Coordinate_37: Chromosomal coordinates of the CpG
-#'   - Islands_Name: Chromosomal coordinates of the CpG Island
-#'   - Relation_to_Island: The location of the CpG relative to the CpG island
-#'   - UCSC_RefGene_Name: Target gene name(s)
-#' @param digits              : Show rounded values to the specified number of decimal places
+#' @param clusters.list A list of clusters with CpG sites, each item is a cluster that contains a set of probes
+#' @param annot A preloaded annotation file that includes columns the below name. For more information, \href{https://bioconductor.org/packages/release/data/annotation/html/IlluminaHumanMethylation450kanno.ilmn12.hg19.html}{IlluminaHumanMethylation450kanno.ilmn12.hg19}.
+#'   - IlmnID: a character vector of IlmnID
+#'   - CHR: a numeric vector of chromosome containing the CpG
+#'   - Coordinate_37: a numeric vector of chromosomal coordinates of the CpG
+#'   - Islands_Name: a character vector of chromosomal coordinates of the CpG Island
+#'   - Relation_to_Island: a character vector of the location of the CpG relative to the CpG island
+#'   - UCSC_RefGene_Name: a character vector of Target gene name(s)
 #'
 #' @return
 #' The function returns a table of summary characteristics:
@@ -28,27 +25,21 @@
 #'   - Base-pair distance between extremes (min, median, max)
 #'   - (1) Clusters associated with a single refernece gene
 #'   - (2) Clusters associated with a single CpG Island
+#'   - (3) Number of resort regions each cluster is associated with (min, median, max)
 #'   - (3-1) Clusters associated with a CpG resort : at least one resort regions
 #'   - (3-2) Clusters associated with a CpG resort : at least two resort regions
-#'   - (3-3) Clusters associated with a CpG resort : one resort regions
-#'   - (3-4) Clusters associated with a CpG resort : two resort regions
-#'   - (3-5) Clusters associated with a CpG resort : three resort regions
-#'
+#' @import data.table
 #' @export
 #'
 #' @examples
-#' library("IlluminaHumanMethylation450kanno.ilmn12.hg19")
-#' annot <- minfi::getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
-#' annot <- data.table(data.frame(annot))
-#' annot <- annot[!chr%in%c("chrY","chrX"),]
-#' annot <- annot[,list("IlmnID"=Name,"Coordinate_37"=pos,"CHR"=as.numeric(gsub("chr", "", chr)),Islands_Name,Relation_to_Island,UCSC_RefGene_Name)]
-#' annot <- annot[order(CHR,Coordinate_37),]
+#' data(annot)
+#' data(sample.data)
+#' DATA.Y <- sample.data$DATA.Y # row: subjects (n), column: CpG sites (q)
 #'
-#' clusters.list <- assign.to.clusters(betas.7, annot)
-#' summary.Aclustering(clusters.list=clusters.list,annot=annot,digits=2)
+#' all.clusters.list <- Aclust::assign.to.clusters(betas = t(DATA.Y),annot = annot, dist.type = "spearman", method = "average", thresh.dist = 0.2,max.dist = 1000,bp.thresh.dist = 999)
+#' summary_Aclustering(clusters.list=all.clusters.list,annot=annot)
 #'
-#'
-summary.Aclustering <- function(clusters.list,annot,digits=2){
+summary_Aclustering <- function(clusters.list,annot){
   DAT.clusters <- lapply(seq_along(clusters.list), function(i){
     data.frame("IlmnID"=clusters.list[[i]], "ClustIdx"=i)
   })
@@ -92,17 +83,15 @@ summary.Aclustering <- function(clusters.list,annot,digits=2){
     c("Total number of sites", n.sites),
     c("Number of singletons", n.single),
     c("Number of clusters (at least two sites)", n.clust),
-    c("Number of CpG sites that are clustered ", paste0(sum(n.CpGs.in.clust$V1)," (",round(sum(n.CpGs.in.clust$V1)/n.sites * 100,digits),"%)",sep="")),
+    c("Number of CpG sites that are clustered ", sprintf("%d (%0.01f%%)",sum(n.CpGs.in.clust$V1),sum(n.CpGs.in.clust$V1)/n.sites * 100)),
     c("Number of CpG sites in cluster (min, median, max)", paste0("(",paste0(n.CpGs.in.clust.summary,collapse=","),")",sep="")),
     c("Base-pair distance between extremes (min, median, max) ", paste0("(",paste0(bp.dist,collapse=","),")",sep="")),
-    c("(1) Clusters associated with a single refernece gene ", paste0(n.gene.1,"/",n.clust," (",round(n.gene.1/n.clust * 100,digits),"%)",sep="")),
-    c("(2) Clusters associated with a single CpG Island ", paste0(n.island.1,"/",n.clust," (",round(n.island.1/n.clust * 100,digits),"%)",sep="")),
-    c("(3-1) Clusters associated with a CpG resort : at least one resort regions", paste0(n.resort.atleast1," (",round(n.resort.atleast1/n.clust * 100,digits),"%)",sep="")),
-    c("(3-2) Clusters associated with a CpG resort : at least two resort regions", paste0(n.resort.atleast2," (",round(n.resort.atleast2/n.clust * 100,digits),"%)",sep="")),
-    c("(3-3) Clusters associated with a CpG resort : one resort regions", paste0(n.resort.1," (",round(n.resort.1/n.clust * 100,digits),"%)",sep="")),
-    c("(3-4) Clusters associated with a CpG resort : two resort regions", paste0(n.resort.2," (",round(n.resort.2/n.clust * 100,digits),"%)",sep="")),
-    c("(3-5) Clusters associated with a CpG resort : three resort regions", paste0(n.resort.3," (",round(n.resort.3/n.clust * 100,digits),"%)",sep=""))
-  ))
+    c("(1) Clusters associated with a single refernece gene ", sprintf("%d/%d (%0.01f%%)",n.gene.1,n.clust,n.gene.1/n.clust*100)),
+    c("(2) Clusters associated with a single CpG Island ", sprintf("%d/%d (%0.01f%%)",n.island.1,n.clust,n.island.1/n.clust*100)),
+    c("(3) Number of resort regions each cluster is associated with (min, median, max)", paste0("(",paste0(quantile(summary.resort$n.resort,c(0,0.5,1)),collapse=","),")",sep="")),
+    c("(3-1) Clusters associated with a CpG resort : at least one resort regions", sprintf("%d (%0.01f%%)",n.resort.atleast1,n.resort.atleast1/n.clust * 100)),
+    c("(3-2) Clusters associated with a CpG resort : at least two resort regions", sprintf("%d (%0.01f%%)",n.resort.atleast2,n.resort.atleast2/n.clust * 100))
+   ))
   colnames(TABLE1) <- c("Characteristics","Quality")
   return(TABLE1)
 }

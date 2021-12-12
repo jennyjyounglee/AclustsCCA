@@ -86,9 +86,6 @@ when regressing X onto Y. Options are “lasso”, “alasso”,“gglasso”,
 **`X.groupidx`** A vector of length that indicates grouping structure of
 exposure .
 
-**`Y.groupidx`** A vector of length that indicates grouping structure of
-outcome .
-
 **`standardize`** A logical flag for exposure and outcome
 standardization, prior to fitting the model.
 
@@ -149,7 +146,7 @@ max.dist <- 1000
 bp.thresh.dist <- 999
 
 # Settings for SparseCCA
-Xmethod <- "SGL"
+Xmethod <- "lasso"
 Ymethod <- "lasso"
 X.groupidx <- c(rep(1,5),rep(2,5),rep(3,5),rep(4,5))
 maxB <- 500
@@ -171,17 +168,20 @@ AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 Ymethod=Ymethod,
                                 X.groupidx=X.groupidx,
                                 # parameters for permutation test for AclustsCCA
+                                h=hBH,
                                 permute=TRUE,
                                 maxB=maxB,
                                 nthread=nthread)
 
-summary.AclustsCCA(AclustsCCA.result)
-# AclustsCCA.result$permutation.result@B
-# AclustsCCA.result$permutation.result
-# test.idx <- which(hBH(AclustsCCA.result$permutation.result@g / AclustsCCA.result$permutation.result@num,0.05))
-# true.idx <- which(sapply(AclustsCCA.result$clusters.list,function(x) sum(x%in%TRUE.CpGs))!=0)
-# lapply(AclustsCCA.result$ALPHA.observed[test.idx],function(x) names(x)[x!=0])
-# lapply(AclustsCCA.result$BETA.observed[test.idx],function(x) names(x)[x!=0])
+summary_AclustsCCA(obj=AclustsCCA.result,annot=annot,n.top=5)
+```
+
+If you want to run more permutation test, then increase either
+**`maxnum`** or **`maxB`** and use the funtion **`AclustsCCA.cont`**.
+
+``` r
+maxB <- 500 
+AclustsCCA.result.updated <- AclustsCCA.cont(obj=AclustsCCA.result,X=AclustsCCA.result$X.resid,Y=AclustsCCA.result$Y.resid,maxB=maxB)
 ```
 
 ## 4. Suggestions on how to run AclustsCCA
@@ -220,6 +220,9 @@ all.clusters.list <- Aclust::assign.to.clusters(betas = t(DATA.Y),
                                                 thresh.dist = thresh.dist,
                                                 max.dist = max.dist,
                                                 bp.thresh.dist = bp.thresh.dist)
+# Summarize the result
+summary_Aclustering(all.clusters.list,annot)
+
 # We only need clusters with at least two probes
 clusters.list <- all.clusters.list[sapply(all.clusters.list,length)!=1]
 ```
@@ -254,4 +257,14 @@ AclustsCCA.result <- AclustsCCA(X=X.resid,
                                 maxB=maxB,
                                 permute=TRUE,
                                 nthread=nthread) 
+```
+
+If you want to run more permutation test, then increase either
+**`maxnum`** or **`maxB`** and use the funtion **`AclustsCCA.cont`**.
+
+``` r
+AclustsCCA.result.updated <- AclustsCCA.cont(obj=AclustsCCA.result,
+                                             X=X.resid,
+                                             Y=Y.resid,
+                                             maxB=maxB*1.5)
 ```

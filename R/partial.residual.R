@@ -10,6 +10,7 @@
 #' @param Z       : A \eqn{n} by \eqn{r} confounder data matrix, where \eqn{n} is sample size and \eqn{r} is number of potential confounders
 #' @param nthread : A number of threads to parallelize regression.
 #'
+#' @import parallel doSNOW
 #' @export
 #' @return
 #' Returns a data matrix with same dimension as `data`

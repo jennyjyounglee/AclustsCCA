@@ -46,6 +46,9 @@
     <loc>/reference/index.html</loc>
   </url>
   <url>
+    <loc>/reference/mmctest.html</loc>
+  </url>
+  <url>
     <loc>/reference/partial.residual.html</loc>
   </url>
   <url>
@@ -62,5 +65,11 @@
   </url>
   <url>
     <loc>/reference/summary.Aclustering.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary_Aclustering.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary_AclustsCCA.html</loc>
   </url>
 </urlset>

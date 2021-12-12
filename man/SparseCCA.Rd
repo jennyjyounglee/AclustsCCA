@@ -8,10 +8,9 @@ SparseCCA(
   X,
   Y,
   Xmethod = c("lasso", "alasso", "gglasso", "SGL"),
-  Ymethod = c("lasso", "alasso", "SGL", "OLS"),
+  Ymethod = c("lasso", "alasso", "OLS"),
   init.method = "SVD",
   X.groupidx = NULL,
-  Y.groupidx = NULL,
   standardize = T,
   max.iter = 50,
   conv = 5 * 10^-2
@@ -34,8 +33,6 @@ SparseCCA(
 \itemize{
 \item "lasso": Lasso
 \item "alasso": Adaptive Lasso
-\item "gglasso": Group Lasso
-\item "SGL": Sparse Group Lasso
 \item "OLS": Ordinary Least Square
 }}
 
@@ -47,8 +44,6 @@ SparseCCA(
 }}
 
 \item{X.groupidx}{: A vector of length \eqn{p} that indicates grouping structure of exposure \code{X}}
-
-\item{Y.groupidx}{: A vector of length \eqn{q} that indicates grouping structure of outcome \code{Y}}
 
 \item{standardize}{: A standardization (center and scale) of exposure \code{X} and outcome \code{Y}}
 

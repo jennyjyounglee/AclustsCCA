@@ -83,13 +83,13 @@ with various penalty functions.</p>
   Ymethod <span class="op">=</span> <span class="st">"OLS"</span>,
   standardize <span class="op">=</span> <span class="cn">T</span>,
   X.groupidx <span class="op">=</span> <span class="cn">NULL</span>,
-  Y.groupidx <span class="op">=</span> <span class="cn">NULL</span>,
   init.method <span class="op">=</span> <span class="st">"SVD"</span>,
   max.iter <span class="op">=</span> <span class="fl">100</span>,
   conv <span class="op">=</span> <span class="fl">10</span><span class="op">^</span><span class="op">-</span><span class="fl">2</span>,
   maxnum <span class="op">=</span> <span class="cn">NULL</span>,
   maxB <span class="op">=</span> <span class="fl">10000</span>,
   FDR.thresh <span class="op">=</span> <span class="fl">0.05</span>,
+  h <span class="op">=</span> <span class="va">hBH</span>,
   permute <span class="op">=</span> <span class="cn">T</span>,
   nthread <span class="op">=</span> <span class="fl">2</span>
 <span class="op">)</span></code></pre></div>
@@ -125,8 +125,6 @@ with various penalty functions.</p>
 <dd><p>A logical flag for exposure \(X\) and outcome \(Y\) standardization, prior to fitting the model.</p></dd>
 <dt>X.groupidx</dt>
 <dd><p>A vector of length \(p\) that indicates grouping structure of exposure \(X\).</p></dd>
-<dt>Y.groupidx</dt>
-<dd><p>A vector of length \(q\) that indicates grouping structure of outcome \(Y\).</p></dd>
 <dt>init.method</dt>
 <dd><p>Initialization method. Options are "lasso", "OLS", and "SVD" (default).</p></dd>
 <dt>max.iter</dt>

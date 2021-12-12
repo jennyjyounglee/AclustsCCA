@@ -34,8 +34,6 @@ Fast permutation test ... [@gandy2014mmctest, @gandy2019r]
 
 | **`X.groupidx`**          A vector of length \eqn{p} that indicates grouping structure of exposure \eqn{X}.
 
-| **`Y.groupidx`**          A vector of length \eqn{q} that indicates grouping structure of outcome \eqn{Y}.
-
 | **`standardize `**        A logical flag for exposure \eqn{X} and outcome \eqn{Y} standardization, prior to fitting the model.
 
 | **`max.iter`**            A maximum number of iterations of SparseCCA. The default is $100$.

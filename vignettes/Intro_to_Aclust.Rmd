@@ -21,22 +21,24 @@ knitr::opts_chunk$set(
 ## 1. What is A-clustering?
 A-clustering is a statistical method .... [@sofer2013clustering].
 
+Here is the link for more detailed explanation of the [A-clustering method](https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true) and [Aclust R package](https://github.com/tamartsi/Aclust/tree/master/man). 
+
 
 ## 2. Input Parameters for A-clustering
 
 **`Y`** \eqn{q} by \eqn{n} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.
 
-**`annot`** A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if **`clusters.list`** is `NULL`.
+**`annot`** A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name".
 
 **`dist.type`** A type of similarity distance function. Options are "spearman" (default), "pearson" (correlation measures) or "euclid". 
 
 **`Aclust.method`** A type of clustering function. Options are "single", "complete" or "average" (default).
 
-**`thresh.dist`** A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above **`dist.thresh`**. Corresponds to $\bar{D}$ in the **`Aclust`** paper and the default is $0.2$
+**`thresh.dist`** A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above **`dist.thresh`**. Corresponds to $\bar{D}$ in the [A-clustering  paper](https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true) paper and the default is $0.2$
 
-**`max.dist`** Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to $\bar{d}_{bp}$ in the **`Aclust`** paper and the default is $1000$.
+**`max.dist`** Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to $\bar{d}_{bp}$ in the [A-clustering  paper](https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true) paper and the default is $1000$.
 
-**`bp.thresh.dist`** A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to $\underline{d}_{bp}$ in the **`Aclust`** paper and the default is $999$.
+**`bp.thresh.dist`** A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to $\underline{d}_{bp}$ in the [A-clustering  paper](https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true) and the default is $999$.
 
 
 ## 3. Implementation of A-clustering
