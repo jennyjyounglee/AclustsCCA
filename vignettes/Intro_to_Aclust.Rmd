@@ -28,17 +28,17 @@ Here is the link for more detailed explanation of the [A-clustering method](http
 
 **`Y`** \eqn{q} by \eqn{n} outcome data matrix, where \eqn{n} is sample size and \eqn{q} is number of outcomes.
 
-**`annot`** A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name".
+**`annot`** A preloaded annotation file that includes columns "IlmnID", "CHR", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name".
 
 **`dist.type`** A type of similarity distance function. Options are "spearman" (default), "pearson" (correlation measures) or "euclid". 
 
 **`Aclust.method`** A type of clustering function. Options are "single", "complete" or "average" (default).
 
-**`thresh.dist`** A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above **`dist.thresh`**. Corresponds to $\bar{D}$ in the [A-clustering  paper](https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true) paper and the default is $0.2$
+**`dist.thresh`** A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above **`dist.thresh`**. Corresponds to $\bar{D}$ in the [A-clustering  paper](https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true) paper and the default is $0.2$
 
-**`max.dist`** Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to $\bar{d}_{bp}$ in the [A-clustering  paper](https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true) paper and the default is $1000$.
+**`bp.thresh.clust`** Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to $\bar{d}_{bp}$ in the [A-clustering  paper](https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true) paper and the default is $1000$.
 
-**`bp.thresh.dist`** A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to $\underline{d}_{bp}$ in the [A-clustering  paper](https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true) and the default is $999$.
+**`bp.merge`** A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to $\underline{d}_{bp}$ in the [A-clustering  paper](https://academic.oup.com/bioinformatics/article/29/22/2884/314757?login=true) and the default is $999$.
 
 
 ## 3. Implementation of A-clustering
@@ -54,18 +54,18 @@ DATA.Y <- sample.data$DATA.Y # row: subjects (n), column: CpG sites (q)
 # Settings for Aclust
 dist.type <- "spearman"
 Aclust.method <- "average"
-thresh.dist <- 0.2
-max.dist <- 1000
-bp.thresh.dist <- 999
+dist.thresh <- 0.2
+bp.thresh.clust <- 1000
+bp.merge <- 999
 
 # Implement A-clustering
 all.clusters.list <- Aclust::assign.to.clusters(betas = t(DATA.Y),
                                                 annot = annot,
                                                 dist.type = dist.type,
                                                 method = Aclust.method,
-                                                thresh.dist = thresh.dist,
-                                                max.dist = max.dist,
-                                                bp.thresh.dist = bp.thresh.dist)
+                                                dist.thresh = dist.thresh,
+                                                bp.thresh.clust = bp.thresh.clust,
+                                                bp.merge = bp.merge)
 # We only need clusters with at least two probes
 clusters.list <- all.clusters.list[sapply(all.clusters.list,length)!=1]
 save(clusters.list,"clusters.list.RData") 

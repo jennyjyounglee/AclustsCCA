@@ -46,7 +46,7 @@ A-clustering, each item is a cluster that contains a set of probes.
 A-clustering is implemented if `NULL` or can be provided by users.
 
 **`annot`** A preloaded annotation file that includes columns “IlmnID”,
-“Coordinate\_37”, “Islands\_Name”, “Relation\_to\_Island”,
+“CHR”, “Coordinate\_37”, “Islands\_Name”, “Relation\_to\_Island”,
 “UCSC\_RefGene\_Name”. Only needed if **`clusters.list`** is `NULL`.
 
 ### 2.2 Input parameters associated with A-clustering:
@@ -57,16 +57,16 @@ A-clustering is implemented if `NULL` or can be provided by users.
 **`Aclust.method`** A type of clustering function. Options are “single”,
 “complete” or “average” (default).
 
-**`thresh.dist`** A similarity distance threshold. Two neighboring
+**`dist.thresh`** A similarity distance threshold. Two neighboring
 clusters are merged to a single cluster if the similarity distance
 between them is above dist.thresh. Corresponds to *D̄* in the paper and
 the default is 0.2
 
-**`max.dist`** Optional maximum length between neighboring variables
-permitting to cluster them together. Corresponds to *d̄*<sub>*b**p*</sub>
-in the paper and the default is 1000.
+**`bp.thresh.clust`** Optional maximum length between neighboring
+variables permitting to cluster them together. Corresponds to
+*d̄*<sub>*b**p*</sub> in the paper and the default is 1000.
 
-**`bp.thresh.dist`** A distance in chromosomal location. Any set of
+**`bp.merge`** A distance in chromosomal location. Any set of
 methylation sites within an interval smaller or equal to bp.dist will be
 potentially merged, depending on the similarity between sites at the
 ends of the interval. Corresponds to $\\underline{d}\_{bp}$ in the paper
@@ -143,9 +143,9 @@ DATA.Z <- sample.data$DATA.Z # row: subjects (n), column: confounders (r)
 # Settings for Aclust
 dist.type <- "spearman"
 Aclust.method <- "average"
-thresh.dist <- 0.2
-max.dist <- 1000
-bp.thresh.dist <- 999
+dist.thresh <- 0.2
+bp.thresh.clust <- 1000
+bp.merge <- 999
 
 # Settings for SparseCCA
 Xmethod <- "lasso"
@@ -161,10 +161,10 @@ AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 annot=annot,
                                 # parameters for A-clustering
                                 dist.type = dist.type,
-                                Aclust.method = Aclust.method,
-                                thresh.dist = thresh.dist,
-                                max.dist = max.dist,
-                                bp.thresh.dist = bp.thresh.dist,
+                                method = Aclust.method,
+                                dist.thresh = dist.thresh,
+                                bp.thresh.clust = bp.thresh.clust,
+                                bp.merge = bp.merge
                                 # parameters for SparseCCA
                                 Xmethod=Xmethod,
                                 Ymethod=Ymethod,
@@ -219,9 +219,9 @@ all.clusters.list <- Aclust::assign.to.clusters(betas = t(DATA.Y),
                                                 annot = annot,
                                                 dist.type = dist.type,
                                                 method = Aclust.method,
-                                                thresh.dist = thresh.dist,
-                                                max.dist = max.dist,
-                                                bp.thresh.dist = bp.thresh.dist)
+                                                dist.thresh = dist.thresh,
+                                                bp.thresh.clust = bp.thresh.clust,
+                                                bp.merge = bp.merge)
 # Summarize the result
 summary_Aclustering(all.clusters.list,annot)
 

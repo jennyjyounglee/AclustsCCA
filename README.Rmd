@@ -50,7 +50,7 @@ The below is a list of input parameters:
 
 | **`clusters.list`** A list of clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes. A-clustering is implemented if `NULL` or can be provided by users.
 
-| **`annot`** A preloaded annotation file that includes columns "IlmnID", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if **`clusters.list`** is `NULL`.
+| **`annot`** A preloaded annotation \code{data.table} file that includes columns "IlmnID", "CHR", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name". Only needed if **`clusters.list`** is `NULL`.
 
 
 ### 2.2 Input parameters associated with A-clustering:
@@ -59,11 +59,11 @@ The below is a list of input parameters:
 
 | **`Aclust.method`** A type of clustering function. Options are "single", "complete" or "average" (default). 
 
-| **`thresh.dist`** A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. Corresponds to $\bar{D}$ in the paper and the default is $0.2$
+| **`dist.thresh`** A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. Corresponds to $\bar{D}$ in the paper and the default is $0.2$
 
-| **`max.dist`** Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to $\bar{d}_{bp}$ in the paper and the default is $1000$.
+| **`bp.thresh.clust`** Optional maximum length between neighboring variables permitting to cluster them together. Corresponds to $\bar{d}_{bp}$ in the paper and the default is $1000$.
 
-| **`bp.thresh.dist`** A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to $\underline{d}_{bp}$ in the paper and the default is $999$.
+| **`bp.merge`** A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to bp.dist will be potentially merged, depending on the similarity between sites at the ends of the interval. Corresponds to $\underline{d}_{bp}$ in the paper and the default is $999$.
 
 ### 2.3 Input parameters associated with SparseCCA:
 
@@ -104,10 +104,10 @@ The framework of `AclustsCCA` consists of two parts:
 
 2. Implement SparseCCA on each cluster identified by A-clustering
 
- - When implementing SparseCCA, partial residuals are used to adjust for potential confounders
- 
- - For statistical inference, permutation test is performed
- 
+- When implementing SparseCCA, partial residuals are used to adjust for potential confounders
+
+- For statistical inference, permutation test is performed
+
 This entire process can be done using the code below, but I personally DO NOT suggest this for computational time and memory. Please read the next section for the suggested way of running `AclustsCCA`.
 
 ```{r, eval=F}
@@ -122,9 +122,9 @@ DATA.Z <- sample.data$DATA.Z # row: subjects (n), column: confounders (r)
 # Settings for Aclust
 dist.type <- "spearman"
 Aclust.method <- "average"
-thresh.dist <- 0.2
-max.dist <- 1000
-bp.thresh.dist <- 999
+dist.thresh <- 0.2
+bp.thresh.clust <- 1000
+bp.merge <- 999
 
 # Settings for SparseCCA
 Xmethod <- "lasso"
@@ -140,10 +140,10 @@ AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 annot=annot,
                                 # parameters for A-clustering
                                 dist.type = dist.type,
-                                Aclust.method = Aclust.method,
-                                thresh.dist = thresh.dist,
-                                max.dist = max.dist,
-                                bp.thresh.dist = bp.thresh.dist,
+                                method = Aclust.method,
+                                dist.thresh = dist.thresh,
+                                bp.thresh.clust = bp.thresh.clust,
+                                bp.merge = bp.merge
                                 # parameters for SparseCCA
                                 Xmethod=Xmethod,
                                 Ymethod=Ymethod,
@@ -173,14 +173,14 @@ The framework of `AclustsCCA` consists of two parts:
 
 2. Implement SparseCCA on each cluster identified by A-clustering
 
- - When implementing SparseCCA, partial residuals are used to adjust for potential confounders
- 
- - For statistical inference, permutation test is performed
+- When implementing SparseCCA, partial residuals are used to adjust for potential confounders
+
+- For statistical inference, permutation test is performed
 
 All of the above procedures can be implemented at once using `AclustsCCA` function. Among these steps, permutation test is definitely a part that takes the most computational time to run and requires attention when running.
 
 Therefore, I personally suggest running each part separately to save computational time and memory.
- 
+
 ### 4.1 Implement A-clustering and save it
 
 A-clustering is implemented to identify cluster and this part have to be ran only once. I personally suggest to run this part separately and save it for future use.
@@ -191,9 +191,9 @@ all.clusters.list <- Aclust::assign.to.clusters(betas = t(DATA.Y),
                                                 annot = annot,
                                                 dist.type = dist.type,
                                                 method = Aclust.method,
-                                                thresh.dist = thresh.dist,
-                                                max.dist = max.dist,
-                                                bp.thresh.dist = bp.thresh.dist)
+                                                dist.thresh = dist.thresh,
+                                                bp.thresh.clust = bp.thresh.clust,
+                                                bp.merge = bp.merge)
 # Summarize the result
 summary_Aclustering(all.clusters.list,annot)
 

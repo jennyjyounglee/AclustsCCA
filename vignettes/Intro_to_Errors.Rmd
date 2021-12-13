@@ -1,0 +1,73 @@
+---
+title: "Possible Errors"
+author: "Jenny Lee"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro_to_errors}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## 1. Common errors one may encounter..
+
+This document summarizes possible error one may encounter when using **`AclustsCCA`**
+
+```{r, eval=F}
+# Load annotation file
+data(annot) # row: CpG sites
+# Load sample data
+data(sample.data)
+DATA.X <- sample.data$DATA.X # row: subjects (n), column: exposures (p)
+DATA.Y <- sample.data$DATA.Y # row: subjects (n), column: CpG sites (q)
+
+# Settings for Aclust
+dist.type <- "spearman"
+Aclust.method <- "average"
+dist.thresh <- 0.2
+bp.thresh.clust <- 1000
+bp.merge <- 999
+```
+
+## 2. Annotation file
+
+A preloaded annotation file should be \code{data.table} and should include columns "IlmnID", "CHR", "Coordinate_37", "Islands_Name", "Relation_to_Island", "UCSC_RefGene_Name".
+
+```{r,error=TRUE}
+data(annot)
+class(annot)
+
+# What if annotation file is data.frame? 
+annot2 <- data.frame(annot)
+class(annot2)
+all.clusters.list <- Aclust::assign.to.clusters(betas = t(DATA.Y),
+                                                annot = annot2,
+                                                dist.type = dist.type,
+                                                method = Aclust.method,
+                                                dist.thresh = dist.thresh,
+                                                bp.thresh.clust = bp.thresh.clust,
+                                                bp.merge = bp.merge)
+```
+
+An annotation file should be ordered by chromosome and chromosomal coordinates of the CpG.
+```{r,error=TRUE}
+# What if annotation file is not ordered?
+annot2 <- annot[sample(1:nrow(annot)),]
+all.clusters.list <- Aclust::assign.to.clusters(betas = t(DATA.Y),
+                                                annot = annot2,
+                                                dist.type = dist.type,
+                                                method = Aclust.method,
+                                                dist.thresh = dist.thresh,
+                                                bp.thresh.clust = bp.thresh.clust,
+                                                bp.merge = bp.merge)
+str(all.clusters.list)
+```
