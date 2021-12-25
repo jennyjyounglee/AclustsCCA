@@ -2,6 +2,7 @@
 
 export(AclustsCCA)
 export(SparseCCA)
+export(Tail.Prob)
 export(confidenceLimits)
 export(hBH)
 export(hBonferroni)

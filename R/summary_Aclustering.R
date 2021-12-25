@@ -86,7 +86,7 @@ summary_Aclustering <- function(clusters.list,annot){
     c("Number of CpG sites that are clustered ", sprintf("%d (%0.01f%%)",sum(n.CpGs.in.clust$V1),sum(n.CpGs.in.clust$V1)/n.sites * 100)),
     c("Number of CpG sites in cluster (min, median, max)", paste0("(",paste0(n.CpGs.in.clust.summary,collapse=","),")",sep="")),
     c("Base-pair distance between extremes (min, median, max) ", paste0("(",paste0(bp.dist,collapse=","),")",sep="")),
-    c("(1) Clusters associated with a single refernece gene ", sprintf("%d/%d (%0.01f%%)",n.gene.1,n.clust,n.gene.1/n.clust*100)),
+    c("(1) Clusters associated with a single reference gene ", sprintf("%d/%d (%0.01f%%)",n.gene.1,n.clust,n.gene.1/n.clust*100)),
     c("(2) Clusters associated with a single CpG Island ", sprintf("%d/%d (%0.01f%%)",n.island.1,n.clust,n.island.1/n.clust*100)),
     c("(3) Number of resort regions each cluster is associated with (min, median, max)", paste0("(",paste0(quantile(summary.resort$n.resort,c(0,0.5,1)),collapse=","),")",sep="")),
     c("(3-1) Clusters associated with a CpG resort : at least one resort regions", sprintf("%d (%0.01f%%)",n.resort.atleast1,n.resort.atleast1/n.clust * 100)),

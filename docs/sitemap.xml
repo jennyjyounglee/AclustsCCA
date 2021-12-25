@@ -16,6 +16,9 @@
     <loc>/articles/Intro_to_AclustsCCA.html</loc>
   </url>
   <url>
+    <loc>/articles/Intro_to_Errors.html</loc>
+  </url>
+  <url>
     <loc>/articles/Intro_to_Partial_Residuals.html</loc>
   </url>
   <url>
@@ -32,6 +35,12 @@
   </url>
   <url>
     <loc>/reference/AclustsCCASampler-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/AclustsCCASampler.cancors-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/AclustsCCASampler.tailprob-class.html</loc>
   </url>
   <url>
     <loc>/reference/annot.html</loc>

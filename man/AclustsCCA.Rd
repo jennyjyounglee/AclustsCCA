@@ -29,7 +29,8 @@ AclustsCCA(
   FDR.thresh = 0.05,
   h = hBH,
   permute = T,
-  nthread = 2
+  nthread = 2,
+  test.stat = c("cancors", "tailprob")
 )
 }
 \arguments{
@@ -76,6 +77,8 @@ AclustsCCA(
 \item{permute}{A logical flag for whether to run permutation test or not.}
 
 \item{nthread}{A number of threads to parallelize permutation test and implementation of SparseCCA across all the clusters.}
+
+\item{test.stat}{A test statistic for permutation test. Options are canonical correlations ("cancors") or tail probability ("tailprob").}
 
 \item{permute.tmp.filepath}{A file path to save intermittent permutation results.}
 }

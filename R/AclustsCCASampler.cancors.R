@@ -1,9 +1,9 @@
 
 #' @title
-#' Build AclustsCCA sampler
+#' Build AclustsCCA sampler based on canonical correlation
 #'
 #' @description
-#' class AclustsCCASampler, inherited from mmctSamplerGeneric
+#' class AclustsCCASampler.cancors, inherited from mmctSamplerGeneric
 #' For more information: \url{https://cran.r-project.org/web/packages/simctest/vignettes/simctest-mmctest-intro.pdf}
 #'
 #' @include simctest.R mmctest.R
@@ -13,10 +13,10 @@
 ############################################################################
 
 # sCCA sampler
-setClass("AclustsCCASampler", contains="mmctSamplerGeneric",
+setClass("AclustsCCASampler.cancors", contains="mmctSamplerGeneric",
          representation=representation(data="list"))
 
-setMethod("getSamples", signature(obj="AclustsCCASampler"),
+setMethod("getSamples", signature(obj="AclustsCCASampler.cancors"),
           function(obj, ind, n) {
             X <- obj@data$X # n X p
             Y <- obj@data$Y # n X q
@@ -59,7 +59,7 @@ setMethod("getSamples", signature(obj="AclustsCCASampler"),
 )
 
 
-setMethod("getNumber", signature(obj="AclustsCCASampler"),
+setMethod("getNumber", signature(obj="AclustsCCASampler.cancors"),
           function(obj) {
             return(obj@data$num.clusters);
           }

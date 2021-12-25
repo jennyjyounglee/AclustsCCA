@@ -30,6 +30,7 @@
 #' @param permute A logical flag for whether to run permutation test or not.
 #' @param nthread A number of threads to parallelize permutation test and implementation of SparseCCA across all the clusters.
 #' @param FDR.thresh False discovery rate (FDR) threshold. The default is 0.05.
+#' @param test.stat A test statistic for permutation test. Options are canonical correlations ("cancors") or tail probability ("tailprob").
 #'
 #' @return
 #' The function returns a list of 6 objects according to the following order:
@@ -47,17 +48,17 @@
 #'
 #'
 #'
-AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,annot=NULL,dist.type="spearman",Aclust.method="average",thresh.dist=0.2,max.dist=1000,bp.thresh.dist=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,h=hBH,permute=T,nthread=2){
+AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,annot=NULL,dist.type="spearman",Aclust.method="average",thresh.dist=0.2,max.dist=1000,bp.thresh.dist=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,h=hBH,permute=T,nthread=2,test.stat=c("cancors","tailprob")){
   if(is.null(clusters.list)){
     ##########################################################################
     # (1) Implement Aclustering
     ##########################################################################
     clusters.list <- Aclust::assign.to.clusters(betas=t(Y), annot=annot,
-                                        dist.type = dist.type,
-                                        method = Aclust.method,
-                                        thresh.dist = thresh.dist,
-                                        bp.thresh.dist = bp.thresh.dist,
-                                        max.dist = max.dist)
+                                                dist.type = dist.type,
+                                                method = Aclust.method,
+                                                thresh.dist = thresh.dist,
+                                                bp.thresh.dist = bp.thresh.dist,
+                                                max.dist = max.dist)
     # We are only interested in clusters (non-sigletons)
     clusters.list <- clusters.list[sapply(clusters.list,length)!=1]
   }
@@ -73,11 +74,11 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
                    conv=conv,
                    maxnum=maxnum,
                    maxB=maxB,
-                   FDR.thresh=FDR.thresh,
                    h=h,
                    permute=permute,
                    nthread=nthread,
-                   FDR.thresh=FDR.thresh)
+                   FDR.thresh=FDR.thresh,
+                   test.stat=test.stat)
 
   ##########################################################################
   # (2) Take partial residuals to take into account of confounders
@@ -115,25 +116,32 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
       Y.resid.subset <- Y.resid[, clusters.list[[cluster.idx]]]
       return(SparseCCA(X=X.resid,Y=Y.resid.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv))
     })
-}
+  }
 
   ALPHA.observed <- lapply(AclustsCCA.observed, function(x) x$ALPHA)
   BETA.observed <- lapply(AclustsCCA.observed, function(x) x$BETA)
   cancors.observed <- sapply(AclustsCCA.observed, function(x) x$cancors.spearman)
+  tailprob.observed <- sapply(AclustsCCA.observed, function(x) x$tailprob)
 
   ##########################################################################
   # (4) Implement Sparse CCA on permuted data
   ##########################################################################
 
   if(isTRUE(permute)){ # run permutation test
-    # (3-1) Define sampler to run: test statistic as canonical correlation (spearman)
+    # (3-1) Define sampler to run
     data.sCCA <- list(X=X.resid,
                       Y=Y.resid,
                       num.clusters=length(clusters.list),
                       clusters.list=clusters.list,
-                      TestStat.observed=cancors.observed,
+                      TestStat.observed=NA,
                       settings=settings)
-    AclustsCCASampler.run <- new("AclustsCCASampler", data=data.sCCA)
+    if(test.stat=="cancors"){
+      data.sCCA$TestStat.observed <- cancors.observed
+      AclustsCCASampler.run <- new("AclustsCCASampler.cancors", data=data.sCCA)
+    } else if(test.stat=="tailprob"){
+      data.sCCA$TestStat.observed <- tailprob.observed
+      AclustsCCASampler.run <- new("AclustsCCASampler.tailprob", data=data.sCCA)
+    } else{ print("test.stat should be either cancors or tailprob")}
     alg <- mmctest(h=h, threshold=FDR.thresh)
 
     # (3-2) Run mcctest using AclustsCCASampler and define temporary file path
@@ -154,6 +162,7 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
                 "ALPHA.observed"=ALPHA.observed,
                 "BETA.observed"=BETA.observed,
                 "cancors.observed"=cancors.observed,
+                "tailprob.observed"=tailprob.observed,
                 "permutation.result"=permute.result,
                 "settings"=settings,
                 "X.resid"=X.resid,
@@ -163,6 +172,7 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
                 "ALPHA.observed"=ALPHA.observed,
                 "BETA.observed"=BETA.observed,
                 "cancors.observed"=cancors.observed,
+                "tailprob.observed"=tailprob.observed,
                 "permutation.result"=permute.result,
                 "settings"=settings))
   }

@@ -3,7 +3,8 @@ pkgdown: 2.0.1
 pkgdown_sha: ~
 articles:
   Intro_to_Aclust: Intro_to_Aclust.html
+  Intro_to_Errors: Intro_to_Errors.html
   Intro_to_Partial_Residuals: Intro_to_Partial_Residuals.html
   Intro_to_SparseCCA: Intro_to_SparseCCA.html
-last_built: 2021-12-12T08:24Z
+last_built: 2021-12-25T22:47Z
 

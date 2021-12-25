@@ -164,7 +164,7 @@ AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 method = Aclust.method,
                                 dist.thresh = dist.thresh,
                                 bp.thresh.clust = bp.thresh.clust,
-                                bp.merge = bp.merge
+                                bp.merge = bp.merge,
                                 # parameters for SparseCCA
                                 Xmethod=Xmethod,
                                 Ymethod=Ymethod,

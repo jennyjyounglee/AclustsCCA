@@ -91,7 +91,8 @@ with various penalty functions.</p>
   FDR.thresh <span class="op">=</span> <span class="fl">0.05</span>,
   h <span class="op">=</span> <span class="va">hBH</span>,
   permute <span class="op">=</span> <span class="cn">T</span>,
-  nthread <span class="op">=</span> <span class="fl">2</span>
+  nthread <span class="op">=</span> <span class="fl">2</span>,
+  test.stat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cancors"</span>, <span class="st">"tailprob"</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -141,6 +142,8 @@ with various penalty functions.</p>
 <dd><p>A logical flag for whether to run permutation test or not.</p></dd>
 <dt>nthread</dt>
 <dd><p>A number of threads to parallelize permutation test and implementation of SparseCCA across all the clusters.</p></dd>
+<dt>test.stat</dt>
+<dd><p>A test statistic for permutation test. Options are canonical correlations ("cancors") or tail probability ("tailprob").</p></dd>
 <dt>permute.tmp.filepath</dt>
 <dd><p>A file path to save intermittent permutation results.</p></dd>
 </dl></div>

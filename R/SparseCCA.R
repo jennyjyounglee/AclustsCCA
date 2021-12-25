@@ -179,18 +179,12 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
   # Y_data<- round(Y_data - Vhat%*%solve(t(Vhat)%*%Vhat)%*%t(Vhat)%*%Y_data,10)
   # Final estimates of canonical vectors, variates and canonical correlation
   if(sum(AHAT_FINAL)==0 | sum(BHAT_FINAL)==0) {
-    cancors.spearman <- cancors.pearson <- NA
+    cancors.spearman <- cancors.pearson <- tail.prob <- NA
   } else{
     cancors.spearman<-cor(Uhat,Vhat,method="spearman")
     cancors.pearson<-cor(Uhat,Vhat,method="pearson")
-  }
+    tail.prob <- Tail.Prob(as.matrix(X[,AHAT_FINAL != 0]),as.matrix(Y[,BHAT_FINAL != 0]))
 
-  # Final estimates of canonical vectors, variates and canonical correlation
-  if(sum(AHAT_FINAL)==0 | sum(BHAT_FINAL)==0) {
-    cancors.spearman <- cancors.pearson <- NA
-  } else{
-    cancors.spearman<-cor(Uhat,Vhat,method="spearman")
-    cancors.pearson<-cor(Uhat,Vhat,method="pearson")
   }
   names(AHAT_FINAL) <- colnames(X)
   names(BHAT_FINAL) <- colnames(Y)
@@ -228,7 +222,7 @@ SparseCCA<-function(X,Y,Xmethod=c("lasso","alasso","gglasso","SGL"),Ymethod=c("l
   # } # END FOR-LOOP
 
   ## OUTPUT
-  out<-list(ALPHA=c(AHAT_FINAL),BETA=c(BHAT_FINAL),cancors.spearman=cancors.spearman,cancors.pearson=cancors.pearson,Uhat=Uhat,Vhat=Vhat,lambdaA=lambdaA_FINAL,lambdaB=lambdaB_FINAL,it=it-1)
+  out<-list(ALPHA=c(AHAT_FINAL),BETA=c(BHAT_FINAL),cancors.spearman=cancors.spearman,cancors.pearson=cancors.pearson,tail.prob=tail.prob,Uhat=Uhat,Vhat=Vhat,lambdaA=lambdaA_FINAL,lambdaB=lambdaB_FINAL,it=it-1)
 }
 
 
