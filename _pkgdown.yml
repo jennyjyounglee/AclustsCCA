@@ -10,4 +10,4 @@ template:
 articles:
   - title: Step by Step Guide
     navbar: Step by Step Guide
-    contents: [Intro_to_Aclust,Intro_to_Partial_Residuals,Intro_to_SparseCCA]
+    contents: [Intro_to_Aclust,Intro_to_Partial_Residuals,Intro_to_SparseCCA,Intro_to_Errors]

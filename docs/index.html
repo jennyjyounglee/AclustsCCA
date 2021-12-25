@@ -61,6 +61,9 @@
     <li>
       <a href="articles/Intro_to_SparseCCA.html">Step 3: Implement SparseCCA on each clusterg</a>
     </li>
+    <li>
+      <a href="articles/Intro_to_Errors.html">Possible Errors</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -153,54 +156,60 @@
 <li><p>For statistical inference, permutation test is performed</p></li>
 </ul>
 <p>This entire process can be done using the code below, but I personally DO NOT suggest this for computational time and memory. Please read the next section for the suggested way of running <code>AclustsCCA</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load annotation file</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(annot) <span class="co"># row: CpG sites</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load sample data</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(sample.data)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>DATA.X <span class="ot">&lt;-</span> sample.data<span class="sc">$</span>DATA.X <span class="co"># row: subjects (n), column: exposures (p)</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>DATA.Y <span class="ot">&lt;-</span> sample.data<span class="sc">$</span>DATA.Y <span class="co"># row: subjects (n), column: CpG sites (q)</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>DATA.Z <span class="ot">&lt;-</span> sample.data<span class="sc">$</span>DATA.Z <span class="co"># row: subjects (n), column: confounders (r)</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Settings for Aclust</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>dist.type <span class="ot">&lt;-</span> <span class="st">"spearman"</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>Aclust.method <span class="ot">&lt;-</span> <span class="st">"average"</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>dist.thresh <span class="ot">&lt;-</span> <span class="fl">0.2</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>bp.thresh.clust <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>bp.merge <span class="ot">&lt;-</span> <span class="dv">999</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Settings for SparseCCA</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>Xmethod <span class="ot">&lt;-</span> <span class="st">"lasso"</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>Ymethod <span class="ot">&lt;-</span> <span class="st">"lasso"</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>X.groupidx <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>,<span class="dv">5</span>),<span class="fu">rep</span>(<span class="dv">2</span>,<span class="dv">5</span>),<span class="fu">rep</span>(<span class="dv">3</span>,<span class="dv">5</span>),<span class="fu">rep</span>(<span class="dv">4</span>,<span class="dv">5</span>))</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>maxB <span class="ot">&lt;-</span> <span class="dv">500</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>nthread <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>AclustsCCA.result <span class="ot">&lt;-</span> <span class="fu">AclustsCCA</span>(<span class="at">X=</span>DATA.X,</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>                                <span class="at">Y=</span>DATA.Y,</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>                                <span class="at">Z=</span>DATA.Z,</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>                                <span class="at">clusters.list=</span><span class="cn">NULL</span>,</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>                                <span class="at">annot=</span>annot,</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>                                <span class="co"># parameters for A-clustering</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>                                <span class="at">dist.type =</span> dist.type,</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>                                <span class="at">method =</span> Aclust.method,</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>                                <span class="at">dist.thresh =</span> dist.thresh,</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>                                <span class="at">bp.thresh.clust =</span> bp.thresh.clust,</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>                                <span class="at">bp.merge =</span> bp.merge</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>                                <span class="co"># parameters for SparseCCA</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>                                <span class="at">Xmethod=</span>Xmethod,</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>                                <span class="at">Ymethod=</span>Ymethod,</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>                                <span class="at">X.groupidx=</span>X.groupidx,</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>                                <span class="co"># parameters for permutation test for AclustsCCA</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>                                <span class="at">h=</span>hBH,</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>                                <span class="at">permute=</span><span class="cn">TRUE</span>,</span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>                                <span class="at">maxB=</span>maxB,</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>                                <span class="at">nthread=</span>nthread)</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="fu">summary_AclustsCCA</span>(<span class="at">obj=</span>AclustsCCA.result,<span class="at">annot=</span>annot,<span class="at">n.top=</span><span class="dv">5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Load annotation file</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">annot</span><span class="op">)</span> <span class="co"># row: CpG sites</span>
+<span class="co"># Load sample data</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sample.data</span><span class="op">)</span>
+<span class="va">DATA.X</span> <span class="op">&lt;-</span> <span class="va">sample.data</span><span class="op">$</span><span class="va">DATA.X</span> <span class="co"># row: subjects (n), column: exposures (p)</span>
+<span class="va">DATA.Y</span> <span class="op">&lt;-</span> <span class="va">sample.data</span><span class="op">$</span><span class="va">DATA.Y</span> <span class="co"># row: subjects (n), column: CpG sites (q)</span>
+<span class="va">DATA.Z</span> <span class="op">&lt;-</span> <span class="va">sample.data</span><span class="op">$</span><span class="va">DATA.Z</span> <span class="co"># row: subjects (n), column: confounders (r)</span>
+
+<span class="co"># Settings for Aclust</span>
+<span class="va">dist.type</span> <span class="op">&lt;-</span> <span class="st">"spearman"</span>
+<span class="va">Aclust.method</span> <span class="op">&lt;-</span> <span class="st">"average"</span>
+<span class="va">dist.thresh</span> <span class="op">&lt;-</span> <span class="fl">0.2</span>
+<span class="va">bp.thresh.clust</span> <span class="op">&lt;-</span> <span class="fl">1000</span>
+<span class="va">bp.merge</span> <span class="op">&lt;-</span> <span class="fl">999</span>
+
+<span class="co"># Settings for SparseCCA</span>
+<span class="va">Xmethod</span> <span class="op">&lt;-</span> <span class="st">"lasso"</span>
+<span class="va">Ymethod</span> <span class="op">&lt;-</span> <span class="st">"lasso"</span>
+<span class="va">X.groupidx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">5</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">5</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">5</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
+<span class="va">maxB</span> <span class="op">&lt;-</span> <span class="fl">500</span>
+<span class="va">nthread</span> <span class="op">&lt;-</span> <span class="fl">2</span>
+
+<span class="va">AclustsCCA.result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/AclustsCCA.html">AclustsCCA</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">DATA.X</span>,
+                                Y<span class="op">=</span><span class="va">DATA.Y</span>,
+                                Z<span class="op">=</span><span class="va">DATA.Z</span>,
+                                clusters.list<span class="op">=</span><span class="cn">NULL</span>,
+                                annot<span class="op">=</span><span class="va">annot</span>,
+                                <span class="co"># parameters for A-clustering</span>
+                                dist.type <span class="op">=</span> <span class="va">dist.type</span>,
+                                Aclust.method <span class="op">=</span> <span class="va">Aclust.method</span>,
+                                dist.thresh <span class="op">=</span> <span class="va">dist.thresh</span>,
+                                bp.thresh.clust <span class="op">=</span> <span class="va">bp.thresh.clust</span>,
+                                bp.merge <span class="op">=</span> <span class="va">bp.merge</span>,
+                                 <span class="co"># parameters for SparseCCA</span>
+                                Xmethod<span class="op">=</span><span class="va">Xmethod</span>,
+                                Ymethod<span class="op">=</span><span class="va">Ymethod</span>,
+                                X.groupidx<span class="op">=</span><span class="va">X.groupidx</span>,
+                                <span class="co"># parameters for permutation test for AclustsCCA</span>
+                                h<span class="op">=</span><span class="va">hBH</span>,
+                                permute<span class="op">=</span><span class="cn">TRUE</span>,
+                                maxB<span class="op">=</span><span class="va">maxB</span>,
+                                nthread<span class="op">=</span><span class="va">nthread</span>,
+                                test.stat<span class="op">=</span><span class="st">"cancors"</span><span class="op">)</span> 
+
+<span class="fu"><a href="reference/summary_AclustsCCA.html">summary_AclustsCCA</a></span><span class="op">(</span>obj<span class="op">=</span><span class="va">AclustsCCA.result</span>,annot<span class="op">=</span><span class="va">annot</span>,n.top<span class="op">=</span><span class="fl">5</span><span class="op">)</span></code></pre></div>
 <p>If you want to run more permutation test, then increase either <strong><code>maxnum</code></strong> or <strong><code>maxB</code></strong> and use the funtion <strong><code>AclustsCCA.cont</code></strong>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">maxB</span> <span class="op">&lt;-</span> <span class="fl">500</span> 
-<span class="va">AclustsCCA.result.updated</span> <span class="op">&lt;-</span> <span class="fu">AclustsCCA.cont</span><span class="op">(</span>obj<span class="op">=</span><span class="va">AclustsCCA.result</span>,X<span class="op">=</span><span class="va">AclustsCCA.result</span><span class="op">$</span><span class="va">X.resid</span>,Y<span class="op">=</span><span class="va">AclustsCCA.result</span><span class="op">$</span><span class="va">Y.resid</span>,maxB<span class="op">=</span><span class="va">maxB</span><span class="op">)</span></code></pre></div>
+<span class="va">AclustsCCA.result.updated</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/AclustsCCA.cont.html">AclustsCCA.cont</a></span><span class="op">(</span>obj<span class="op">=</span><span class="va">AclustsCCA.result</span>,
+                                             X<span class="op">=</span><span class="va">AclustsCCA.result</span><span class="op">$</span><span class="va">X.resid</span>,
+                                             Y<span class="op">=</span><span class="va">AclustsCCA.result</span><span class="op">$</span><span class="va">Y.resid</span>,
+                                             maxB<span class="op">=</span><span class="va">maxB</span><span class="op">)</span>
+<span class="fu"><a href="reference/summary_AclustsCCA.html">summary_AclustsCCA</a></span><span class="op">(</span>obj<span class="op">=</span><span class="va">AclustsCCA.result.updated</span>,annot<span class="op">=</span><span class="va">annot</span>,n.top<span class="op">=</span><span class="fl">5</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="4-suggestions-on-how-to-run-aclustscca">4. Suggestions on how to run AclustsCCA<a class="anchor" aria-label="anchor" href="#4-suggestions-on-how-to-run-aclustscca"></a>
@@ -258,13 +267,15 @@
                                 <span class="co"># parameters for permutation test for AclustsCCA</span>
                                 maxB<span class="op">=</span><span class="va">maxB</span>,
                                 permute<span class="op">=</span><span class="cn">TRUE</span>,
-                                nthread<span class="op">=</span><span class="va">nthread</span><span class="op">)</span> </code></pre></div>
+                                nthread<span class="op">=</span><span class="va">nthread</span>,
+                                test.stat<span class="op">=</span><span class="st">"cancors"</span><span class="op">)</span></code></pre></div>
 <p>If you want to run more permutation test, then increase either <strong><code>maxnum</code></strong> or <strong><code>maxB</code></strong> and use the funtion <strong><code>AclustsCCA.cont</code></strong>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">AclustsCCA.result.updated</span> <span class="op">&lt;-</span> <span class="fu">AclustsCCA.cont</span><span class="op">(</span>obj<span class="op">=</span><span class="va">AclustsCCA.result</span>,
+<code class="sourceCode R"><span class="va">AclustsCCA.result.updated</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/AclustsCCA.cont.html">AclustsCCA.cont</a></span><span class="op">(</span>obj<span class="op">=</span><span class="va">AclustsCCA.result</span>,
                                              X<span class="op">=</span><span class="va">X.resid</span>,
                                              Y<span class="op">=</span><span class="va">Y.resid</span>,
-                                             maxB<span class="op">=</span><span class="va">maxB</span><span class="op">*</span><span class="fl">1.5</span><span class="op">)</span></code></pre></div>
+                                             maxB<span class="op">=</span><span class="va">maxB</span><span class="op">*</span><span class="fl">1.5</span><span class="op">)</span>
+<span class="fu"><a href="reference/summary_AclustsCCA.html">summary_AclustsCCA</a></span><span class="op">(</span>obj<span class="op">=</span><span class="va">AclustsCCA.result.updated</span>,annot<span class="op">=</span><span class="va">annot</span>,n.top<span class="op">=</span><span class="fl">5</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
 

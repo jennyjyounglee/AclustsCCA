@@ -14,9 +14,9 @@ AclustsCCA(
   annot = NULL,
   dist.type = "spearman",
   Aclust.method = "average",
-  thresh.dist = 0.2,
-  max.dist = 1000,
-  bp.thresh.dist = 999,
+  dist.thresh = 0.2,
+  bp.thresh.clust = 1000,
+  bp.merge = 999,
   Xmethod = "lasso",
   Ymethod = "OLS",
   standardize = T,
@@ -48,12 +48,6 @@ AclustsCCA(
 
 \item{Aclust.method}{A type of clustering function. Options are "single", "complete" or "average" (default).}
 
-\item{thresh.dist}{A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. The default is 0.2}
-
-\item{max.dist}{Optional maximum length between neighboring variables permitting to cluster them together. The default is 1000.}
-
-\item{bp.thresh.dist}{A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to \strong{\code{bp.dist}} will be potentially merged, depending on the similarity between sites at the ends of the interval. The default is 999.}
-
 \item{Xmethod}{A penalty function for the exposure, i.e. penalty function when regressing Y onto X. Options are "lasso", "alasso","gglasso", and "SGL" (default).}
 
 \item{Ymethod}{A penalty function for the outcome, i.e. penalty function when regressing X onto Y. Options are "lasso", "alasso","gglasso", "SGL", and "OLS" (default).}
@@ -80,6 +74,12 @@ AclustsCCA(
 
 \item{test.stat}{A test statistic for permutation test. Options are canonical correlations ("cancors") or tail probability ("tailprob").}
 
+\item{thresh.dist}{A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. The default is 0.2}
+
+\item{max.dist}{Optional maximum length between neighboring variables permitting to cluster them together. The default is 1000.}
+
+\item{bp.thresh.dist}{A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to \strong{\code{bp.dist}} will be potentially merged, depending on the similarity between sites at the ends of the interval. The default is 999.}
+
 \item{permute.tmp.filepath}{A file path to save intermittent permutation results.}
 }
 \value{
@@ -99,7 +99,6 @@ sparse canonical correlation analysis (SparseCCA)
 with various penalty functions.
 }
 \examples{
-
 
 
 }

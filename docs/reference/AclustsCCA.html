@@ -44,6 +44,9 @@ with various penalty functions."><!-- mathjax --><script src="https://cdnjs.clou
     <li>
       <a href="../articles/Intro_to_SparseCCA.html">Step 3: Implement SparseCCA on each clusterg</a>
     </li>
+    <li>
+      <a href="../articles/Intro_to_Errors.html">Possible Errors</a>
+    </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -76,9 +79,9 @@ with various penalty functions.</p>
   annot <span class="op">=</span> <span class="cn">NULL</span>,
   dist.type <span class="op">=</span> <span class="st">"spearman"</span>,
   Aclust.method <span class="op">=</span> <span class="st">"average"</span>,
-  thresh.dist <span class="op">=</span> <span class="fl">0.2</span>,
-  max.dist <span class="op">=</span> <span class="fl">1000</span>,
-  bp.thresh.dist <span class="op">=</span> <span class="fl">999</span>,
+  dist.thresh <span class="op">=</span> <span class="fl">0.2</span>,
+  bp.thresh.clust <span class="op">=</span> <span class="fl">1000</span>,
+  bp.merge <span class="op">=</span> <span class="fl">999</span>,
   Xmethod <span class="op">=</span> <span class="st">"lasso"</span>,
   Ymethod <span class="op">=</span> <span class="st">"OLS"</span>,
   standardize <span class="op">=</span> <span class="cn">T</span>,
@@ -112,12 +115,6 @@ with various penalty functions.</p>
 <dd><p>A type of similarity distance function. Options are "spearman" (default), "pearson" (correlation measures) or "euclid".</p></dd>
 <dt>Aclust.method</dt>
 <dd><p>A type of clustering function. Options are "single", "complete" or "average" (default).</p></dd>
-<dt>thresh.dist</dt>
-<dd><p>A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. The default is 0.2</p></dd>
-<dt>max.dist</dt>
-<dd><p>Optional maximum length between neighboring variables permitting to cluster them together. The default is 1000.</p></dd>
-<dt>bp.thresh.dist</dt>
-<dd><p>A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to <strong><code>bp.dist</code></strong> will be potentially merged, depending on the similarity between sites at the ends of the interval. The default is 999.</p></dd>
 <dt>Xmethod</dt>
 <dd><p>A penalty function for the exposure, i.e. penalty function when regressing Y onto X. Options are "lasso", "alasso","gglasso", and "SGL" (default).</p></dd>
 <dt>Ymethod</dt>
@@ -144,6 +141,12 @@ with various penalty functions.</p>
 <dd><p>A number of threads to parallelize permutation test and implementation of SparseCCA across all the clusters.</p></dd>
 <dt>test.stat</dt>
 <dd><p>A test statistic for permutation test. Options are canonical correlations ("cancors") or tail probability ("tailprob").</p></dd>
+<dt>thresh.dist</dt>
+<dd><p>A similarity distance threshold. Two neighboring clusters are merged to a single cluster if the similarity distance between them is above dist.thresh. The default is 0.2</p></dd>
+<dt>max.dist</dt>
+<dd><p>Optional maximum length between neighboring variables permitting to cluster them together. The default is 1000.</p></dd>
+<dt>bp.thresh.dist</dt>
+<dd><p>A distance in chromosomal location. Any set of methylation sites within an interval smaller or equal to <strong><code>bp.dist</code></strong> will be potentially merged, depending on the similarity between sites at the ends of the interval. The default is 999.</p></dd>
 <dt>permute.tmp.filepath</dt>
 <dd><p>A file path to save intermittent permutation results.</p></dd>
 </dl></div>
@@ -160,7 +163,6 @@ with various penalty functions.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"></span>
 <span class="r-in"></span>
 <span class="r-in"></span>
 </code></pre></div>

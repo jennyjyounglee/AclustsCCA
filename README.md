@@ -161,11 +161,11 @@ AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 annot=annot,
                                 # parameters for A-clustering
                                 dist.type = dist.type,
-                                method = Aclust.method,
+                                Aclust.method = Aclust.method,
                                 dist.thresh = dist.thresh,
                                 bp.thresh.clust = bp.thresh.clust,
                                 bp.merge = bp.merge,
-                                # parameters for SparseCCA
+                                 # parameters for SparseCCA
                                 Xmethod=Xmethod,
                                 Ymethod=Ymethod,
                                 X.groupidx=X.groupidx,
@@ -173,7 +173,8 @@ AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 h=hBH,
                                 permute=TRUE,
                                 maxB=maxB,
-                                nthread=nthread)
+                                nthread=nthread,
+                                test.stat="cancors") 
 
 summary_AclustsCCA(obj=AclustsCCA.result,annot=annot,n.top=5)
 ```
@@ -183,7 +184,11 @@ If you want to run more permutation test, then increase either
 
 ``` r
 maxB <- 500 
-AclustsCCA.result.updated <- AclustsCCA.cont(obj=AclustsCCA.result,X=AclustsCCA.result$X.resid,Y=AclustsCCA.result$Y.resid,maxB=maxB)
+AclustsCCA.result.updated <- AclustsCCA.cont(obj=AclustsCCA.result,
+                                             X=AclustsCCA.result$X.resid,
+                                             Y=AclustsCCA.result$Y.resid,
+                                             maxB=maxB)
+summary_AclustsCCA(obj=AclustsCCA.result.updated,annot=annot,n.top=5)
 ```
 
 ## 4. Suggestions on how to run AclustsCCA
@@ -258,7 +263,8 @@ AclustsCCA.result <- AclustsCCA(X=X.resid,
                                 # parameters for permutation test for AclustsCCA
                                 maxB=maxB,
                                 permute=TRUE,
-                                nthread=nthread) 
+                                nthread=nthread,
+                                test.stat="cancors")
 ```
 
 If you want to run more permutation test, then increase either
@@ -269,4 +275,5 @@ AclustsCCA.result.updated <- AclustsCCA.cont(obj=AclustsCCA.result,
                                              X=X.resid,
                                              Y=Y.resid,
                                              maxB=maxB*1.5)
+summary_AclustsCCA(obj=AclustsCCA.result.updated,annot=annot,n.top=5)
 ```

@@ -47,8 +47,7 @@
 #' @examples
 #'
 #'
-#'
-AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,annot=NULL,dist.type="spearman",Aclust.method="average",thresh.dist=0.2,max.dist=1000,bp.thresh.dist=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,h=hBH,permute=T,nthread=2,test.stat=c("cancors","tailprob")){
+AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,annot=NULL,dist.type="spearman",Aclust.method="average",dist.thresh=0.2,bp.thresh.clust=1000,bp.merge=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,h=hBH,permute=T,nthread=2,test.stat=c("cancors","tailprob")){
   if(is.null(clusters.list)){
     ##########################################################################
     # (1) Implement Aclustering
@@ -56,9 +55,9 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
     clusters.list <- Aclust::assign.to.clusters(betas=t(Y), annot=annot,
                                                 dist.type = dist.type,
                                                 method = Aclust.method,
-                                                thresh.dist = thresh.dist,
-                                                bp.thresh.dist = bp.thresh.dist,
-                                                max.dist = max.dist)
+                                                dist.thresh = dist.thresh,
+                                                bp.thresh.clust = bp.thresh.clust,
+                                                bp.merge = bp.merge)
     # We are only interested in clusters (non-sigletons)
     clusters.list <- clusters.list[sapply(clusters.list,length)!=1]
   }
