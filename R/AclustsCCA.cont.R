@@ -42,8 +42,11 @@ AclustsCCA.cont <- function(obj,X,Y,maxnum=NULL,maxB=10000){
   sampler.result@gensample@data$X <- X
   sampler.result@gensample@data$Y <- Y
   sampler.result@gensample@data$clusters.list <- obj$clusters.list
-  sampler.result@gensample@data$TestStat.observed <- obj$cancors.observed
-
+  if(obj$settings$test.stat=="cancors"){
+    sampler.result@gensample@data$TestStat.observed <- obj$cancors.observed
+  } else if(obj$settings$test.stat=="tailprob"){
+    sampler.result@gensample@data$TestStat.observed <- obj$tailprob.observed
+  } else{ print("test.stat should be either cancors or tailprob")}
   # (2) Continue running
   sampler.result <- cont(sampler.result, steps=list(undecided=0,maxnum=maxnum,maxB=maxB))
 
@@ -52,6 +55,7 @@ AclustsCCA.cont <- function(obj,X,Y,maxnum=NULL,maxB=10000){
               "ALPHA.observed"=obj$ALPHA.observed,
               "BETA.observed"=obj$BETA.observed,
               "cancors.observed"=obj$cancors.observed,
+              "tailprob.observed"=obj$tailprob.observed,
               "permutation.result"=sampler.result,
               "settings"=obj$settings))
 }

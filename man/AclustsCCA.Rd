@@ -30,7 +30,7 @@ AclustsCCA(
   h = hBH,
   permute = T,
   nthread = 2,
-  test.stat = c("cancors", "tailprob")
+  test.stat = "cancors"
 )
 }
 \arguments{

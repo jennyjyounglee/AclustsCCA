@@ -47,7 +47,7 @@
 #' @examples
 #'
 #'
-AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,annot=NULL,dist.type="spearman",Aclust.method="average",dist.thresh=0.2,bp.thresh.clust=1000,bp.merge=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,h=hBH,permute=T,nthread=2,test.stat=c("cancors","tailprob")){
+AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,annot=NULL,dist.type="spearman",Aclust.method="average",dist.thresh=0.2,bp.thresh.clust=1000,bp.merge=999,Xmethod="lasso",Ymethod="OLS",standardize=T,X.groupidx=NULL,init.method="SVD",max.iter=100,conv=10^-2,maxnum=NULL,maxB=10000,FDR.thresh=0.05,h=hBH,permute=T,nthread=2,test.stat="cancors"){
   if(is.null(clusters.list)){
     ##########################################################################
     # (1) Implement Aclustering
