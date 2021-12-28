@@ -113,14 +113,15 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
     AclustsCCA.observed <- lapply(1:length(clusters.list), function(cluster.idx) {
       cat("[Observed data: SparseCCA] cluster.idx = ", cluster.idx, "\n")
       Y.resid.subset <- Y.resid[, clusters.list[[cluster.idx]]]
-      return(SparseCCA(X=X.resid,Y=Y.resid.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=settings$X.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv))
+      return(SparseCCA(X=X.resid,Y=Y.resid.subset,standardize=settings$standardize,Xmethod=settings$Xmethod,Ymethod=settings$Ymethod,X.groupidx=
+                         settings$X.groupidx,init.method=settings$init.method,max.iter=settings$max.iter,conv=settings$conv))
     })
   }
 
   ALPHA.observed <- lapply(AclustsCCA.observed, function(x) x$ALPHA)
   BETA.observed <- lapply(AclustsCCA.observed, function(x) x$BETA)
   cancors.observed <- sapply(AclustsCCA.observed, function(x) x$cancors.spearman)
-  tailprob.observed <- sapply(AclustsCCA.observed, function(x) x$tailprob)
+  tailprob.observed <- sapply(AclustsCCA.observed, function(x) x$tail.prob)
 
   ##########################################################################
   # (4) Implement Sparse CCA on permuted data

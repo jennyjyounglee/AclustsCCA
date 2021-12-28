@@ -83,16 +83,25 @@ The data is generated from multivariate normal distribution.</p>
     <div id="format">
     <h2>Format</h2>
     <p>A <code>list</code> of length 10, which are:</p><dl><dt>DATA.X</dt>
-<dd><p>A \(n=500\) by \(p\) matrix where \(n\) is a number of subjects and \(p\) is a number of exposures.</p></dd>
+<dd><p>A \(n=1000\) by \(p\) matrix where \(n\) is a number of subjects and \(p\) is a number of exposures.</p></dd>
 
 <dt>DATA.Y</dt>
-<dd><p>A \(n=500\) by \(q\) matrix where \(n\) is a number of subjects and \(q\) is a number of CpG sites.</p></dd>
+<dd><p>A \(n=1000\) by \(q\) matrix where \(n\) is a number of subjects and \(q\) is a number of CpG sites.</p></dd>
 
 <dt>DATA.Z</dt>
-<dd><p>A \(n=500\) by 2 matrix where \(n\) is a number of subjects and 2 is a number of confounders.</p></dd>
+<dd><p>A \(n=1000\) by 2 matrix where \(n\) is a number of subjects and 2 is a number of confounders.</p></dd>
+
+<dt>clusters.list</dt>
+<dd><p>A list of 9 clusters with CpG sites obtained using A-clustering, each item is a cluster that contains a set of probes.</p></dd>
+
+<dt>TRUE.Clusters</dt>
+<dd><p>A index of clusters that are truly associated with exposures</p></dd>
+
+<dt>TRUE.Cancors</dt>
+<dd><p>A true canonical correlation for each true clusters</p></dd>
 
 <dt>TRUE.CpGs</dt>
-<dd><p>A vector of 28 true CpG sites that are associated with exposures</p></dd>
+<dd><p>A list of 28 true CpG sites that are associated with exposures</p></dd>
 
 <dt>TRUE.Exposures</dt>
 <dd><p>A vector of 5 true exposures that are associated with outcome</p></dd>
@@ -111,9 +120,6 @@ The data is generated from multivariate normal distribution.</p>
 
 <dt>SIGMA.XY</dt>
 <dd><p>A \(p\) by \(q\) correlation matrix of exposure and outcome used to generated data</p></dd>
-
-<dt>clusters.list</dt>
-<dd><p>A list of 9 clusters with CpG sites obtained using A-clustering, each item is a cluster. Cluster 2,5,6,7,9 are the true DMRs.</p></dd>
 
 
 </dl></div>

@@ -268,10 +268,10 @@ setMethod("mainalg", signature(obj="mmctestres"), function(obj, stopcrit) {
     }) # end tryCatch
 
     # update weights/rejection probabilities before termination
-    prior_alpha <- 1+g;
-    prior_beta <- 1+num-g;
-    rej <- rowSums( replicate(obj@R, obj@h(rbeta(m,prior_alpha,prior_beta),obj@threshold)) );
-    obj@rejprob <- rej/obj@R;
+    # prior_alpha <- 1+g;
+    # prior_beta <- 1+num-g;
+    # rej <- rowSums( replicate(obj@R, obj@h(rbeta(m,prior_alpha,prior_beta),obj@threshold)) );
+    # obj@rejprob <- rej/obj@R;
     return(obj);
   }
 )

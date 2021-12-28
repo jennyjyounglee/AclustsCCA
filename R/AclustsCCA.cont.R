@@ -50,6 +50,9 @@ AclustsCCA.cont <- function(obj,X,Y,maxnum=NULL,maxB=10000){
   # (2) Continue running
   sampler.result <- cont(sampler.result, steps=list(undecided=0,maxnum=maxnum,maxB=maxB))
 
+  sampler.result@gensample@data$X <- NULL
+  sampler.result@gensample@data$Y <- NULL
+  sampler.result@gensample@data$clusters.list <- NULL
   # (3) Return
   return(list("clusters.list"=obj$clusters.list,
               "ALPHA.observed"=obj$ALPHA.observed,

@@ -148,8 +148,8 @@ bp.thresh.clust <- 1000
 bp.merge <- 999
 
 # Settings for SparseCCA
-Xmethod <- "lasso"
-Ymethod <- "lasso"
+Xmethod <- "SGL"
+Ymethod <- "OLS"
 X.groupidx <- c(rep(1,5),rep(2,5),rep(3,5),rep(4,5))
 maxB <- 500
 nthread <- 2
@@ -176,19 +176,22 @@ AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 nthread=nthread,
                                 test.stat="cancors") 
 
-summary_AclustsCCA(obj=AclustsCCA.result,annot=annot,n.top=5)
+TABLE1 <- data.table(summary_AclustsCCA(obj=AclustsCCA.result,annot=annot,n.top=9))
+
+# Are the true clusters selected as significant?
+sample.data$TRUE.Clusters; sort(TABLE1[Significant=="Yes",ClustIdx])
 ```
 
 If you want to run more permutation test, then increase either
 **`maxnum`** or **`maxB`** and use the funtion **`AclustsCCA.cont`**.
 
 ``` r
-maxB <- 500 
+maxB <- maxB * 2 
 AclustsCCA.result.updated <- AclustsCCA.cont(obj=AclustsCCA.result,
                                              X=AclustsCCA.result$X.resid,
                                              Y=AclustsCCA.result$Y.resid,
                                              maxB=maxB)
-summary_AclustsCCA(obj=AclustsCCA.result.updated,annot=annot,n.top=5)
+summary_AclustsCCA(obj=AclustsCCA.result.updated,annot=annot,n.top=9)
 ```
 
 ## 4. Suggestions on how to run AclustsCCA
@@ -274,6 +277,6 @@ If you want to run more permutation test, then increase either
 AclustsCCA.result.updated <- AclustsCCA.cont(obj=AclustsCCA.result,
                                              X=X.resid,
                                              Y=Y.resid,
-                                             maxB=maxB*1.5)
+                                             maxB=maxB*2)
 summary_AclustsCCA(obj=AclustsCCA.result.updated,annot=annot,n.top=5)
 ```

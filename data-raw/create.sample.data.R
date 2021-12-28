@@ -1,6 +1,9 @@
-n <- 500
+library("IlluminaHumanMethylation450kanno.ilmn12.hg19")
+library("data.table")
+n <- 1000
 p <- 20
 q <- 100
+TRUE.RHO <- 0.9
 
 # Create autoregressive of order 1 matrix
 AR.matrix <- function(n,rho){
@@ -47,21 +50,28 @@ TRUE.BETA <- (colnames(SIGMA.YY) %in% TRUE.CpGs)*1
 names(TRUE.ALPHA) <- rownames(SIGMA.XX)
 names(TRUE.BETA) <- rownames(SIGMA.YY)
 
+# TRUE.RHO.Weight <- TRUE.BETA
+# for(idx in TRUE.ClustIdx){
+#   TRUE.RHO.Weight[annot[ClustIdx%in%idx,IlmnID]] <- annot[ClustIdx%in%idx,ClustSize]
+# }
+# TRUE.RHO.Weight[TRUE.RHO.Weight!=0] <- TRUE.RHO * max(TRUE.RHO.Weight) / TRUE.RHO.Weight[TRUE.RHO.Weight!=0]
+
 # Normalize loading
 TRUE.ALPHA <- TRUE.ALPHA / as.numeric(sqrt(t(TRUE.ALPHA) %*% SIGMA.XX %*% TRUE.ALPHA))
 TRUE.BETA<- TRUE.BETA / as.numeric(sqrt(t(TRUE.BETA) %*% SIGMA.YY %*% TRUE.BETA))
 
 # DEFINE COVARIANCE MATRIX OF X AND Y (BASED ON CHEN'S PAPER)
-SIGMA.XY <- 0.9 * SIGMA.XX %*% TRUE.ALPHA %*% t(TRUE.BETA) %*% SIGMA.YY
+SIGMA.XY <- TRUE.RHO * SIGMA.XX %*% TRUE.ALPHA %*% t(TRUE.BETA) %*% SIGMA.YY
+# SIGMA.XY <- SIGMA.XX %*% TRUE.ALPHA %*% t(TRUE.RHO.Weight * TRUE.BETA) %*% SIGMA.YY
 
 # CREATE COVARIANCE MATRIX FOR X AND Y
-SIGMA_BIG<-rbind(cbind(SIGMA.XX,SIGMA.XY),cbind(t(SIGMA.XY),SIGMA.YY))
+SIGMA.BIG<-rbind(cbind(SIGMA.XX,SIGMA.XY),cbind(t(SIGMA.XY),SIGMA.YY))
 
 # Generate exposure and outcome data
-DATA_clean<-mvtnorm::rmvnorm(floor(n),mean=rep(0,p+q),sigma=SIGMA_BIG)
+DATA_clean<-mvtnorm::rmvnorm(floor(n),mean=rep(0,p+q),sigma=SIGMA.BIG)
 DATA.X<-DATA_clean[,1:p]
 DATA.Y<-DATA_clean[,(p+1):(p+q)]
-DATA.Z <- data.frame("confounder1"=rnorm(n,0,0.0001),"confounder2"=rnorm(n))
+DATA.Z <- data.frame("Confounder1"=rnorm(n,0,0.0001),"Confounder2"=rnorm(n))
 
 colnames(DATA.X) <- colnames(SIGMA.XX)
 colnames(DATA.Y) <- colnames(SIGMA.YY)
@@ -70,30 +80,42 @@ rownames(DATA.X) <- rownames(DATA.Y) <- rownames(DATA.Z)<- paste("Subject",1:n,s
 
 # Generate confounder data
 confounding.effect <- as.matrix(DATA.Z) %*% matrix(c(0.01,0.01),nrow=2,ncol=1)
-DATA.X <- DATA.X + matrix(rep(confounding.effect,p),ncol=p)
-DATA.Y <- DATA.Y + matrix(rep(confounding.effect,q),ncol=q)
+DATA.XZ <- DATA.X + matrix(rep(confounding.effect,p),ncol=p)
+DATA.YZ <- DATA.Y + matrix(rep(confounding.effect,q),ncol=q)
 
 # Implement A-clustering
-all.clusters.list <- Aclust::assign.to.clusters(betas = t(DATA.Y),
+all.clusters.list <- Aclust::assign.to.clusters(betas = t(DATA.YZ),
                                                 annot = annot,
                                                 dist.type = "spearman",
                                                 method = "average",
-                                                thresh.dist = 0.2,
-                                                bp.thresh.dist = 999,
-                                                max.dist = 1000)
+                                                dist.thresh = 0.2,
+                                                bp.thresh.clust = 1000,
+                                                bp.merge = 999)
 clusters.list <- all.clusters.list[sapply(all.clusters.list,length)!=1]
+TRUE.Clusters <- which(sapply(clusters.list,function(x) sum(x%in%TRUE.CpGs))!=0)
+TRUE.BETA.list <- lapply(clusters.list[TRUE.Clusters],function(x) TRUE.BETA[x])
 
-sample.data <- list("DATA.X"=DATA.X,
-                    "DATA.Y"=DATA.Y,
+## Estimate true canonical correlation for each cluster
+TRUE.Cancors <- sapply(TRUE.Clusters,function(ClustIdx) {
+  TRUE.BETA.tmp <- TRUE.BETA
+  TRUE.BETA.tmp[!names(TRUE.BETA.tmp) %in% clusters.list[[ClustIdx]]] <- 0
+  cor(DATA.X %*% TRUE.ALPHA, DATA.Y %*% TRUE.BETA.tmp)
+})
+
+# Output the result
+sample.data <- list("DATA.X"=DATA.XZ,
+                    "DATA.Y"=DATA.YZ,
                     "DATA.Z"=DATA.Z,
-                    "TRUE.CpGs"=TRUE.CpGs,
+                    "clusters.list"=clusters.list,
+                    "TRUE.Clusters"=TRUE.Clusters,
+                    "TRUE.Cancors"=TRUE.Cancors,
+                    "TRUE.CpGs"=clusters.list[TRUE.Clusters],
                     "TRUE.Exposures"=TRUE.Exposures,
                     "TRUE.ALPHA"=TRUE.ALPHA,
-                    "TRUE.BETA"=TRUE.BETA,
+                    "TRUE.BETA"=TRUE.BETA.list,
                     "SIGMA.XX"=SIGMA.XX,
                     "SIGMA.YY"=SIGMA.YY,
-                    "SIGMA.XY"=SIGMA.XY,
-                    "clusters.list"=clusters.list)
+                    "SIGMA.XY"=SIGMA.XY)
 
 
 usethis::use_data(sample.data, compress = "xz",overwrite = TRUE)
