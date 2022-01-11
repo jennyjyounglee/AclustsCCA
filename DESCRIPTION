@@ -50,3 +50,5 @@ Collate:
     'summary_Aclustering.R'
     'summary_AclustsCCA.R'
     'utilis.R'
+URL: https://github.com/jennyjyounglee/AclustsCCA
+BugReports: https://github.com/jennyjyounglee/AclustsCCA/issues
