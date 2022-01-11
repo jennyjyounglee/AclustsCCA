@@ -3,8 +3,11 @@
 
 ## 0. What is AclustsCCA?
 
-AclustsCCA a two stage frame work The framework of `AclustsCCA` consists
-of two parts The goal of AclustsCCA is to …
+AclustsCCA a two stage framework to test the association between
+multiple exposures and multiple outcomes.
+
+The framework of `AclustsCCA` consists of two parts The goal of
+AclustsCCA is to …
 
 ## 1. Installation
 
