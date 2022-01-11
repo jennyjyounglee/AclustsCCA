@@ -315,8 +315,8 @@ setMethod("show", signature(object="mmctestres"), function(object) {
 ##' @export
 setGeneric("pEstimate", def=function(obj){standardGeneric("pEstimate")})
 setMethod("pEstimate", signature(obj="mmctestres"), function(obj) {
-    return(obj@g/obj@num);
-    # return((obj@g+1)/(obj@num+1));
+    # return(obj@g/obj@num);
+    return((obj@g+1)/(obj@num+1));
   }
 )
 
