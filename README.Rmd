@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 
 ## 0. What is AclustsCCA?
 
+AclustsCCA a two stage frame work 
 The framework of `AclustsCCA` consists of two parts
 The goal of AclustsCCA is to ...
 
