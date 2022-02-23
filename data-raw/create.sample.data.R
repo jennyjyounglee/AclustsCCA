@@ -1,6 +1,6 @@
 library("IlluminaHumanMethylation450kanno.ilmn12.hg19")
 library("data.table")
-n <- 1000
+n <- 500
 p <- 20
 q <- 100
 TRUE.RHO <- 0.9
@@ -25,19 +25,19 @@ annot <- annot[,list("IlmnID"=Name,"Coordinate_37"=pos,"CHR"=as.numeric(gsub("ch
 annot <- annot[CHR==7,]
 annot <- annot[order(CHR,Coordinate_37),]
 annot <- annot[UCSC_RefGene_Name!="",]
-annot <- annot[1:q,]
+annot <- annot[90:(89+q),]
 
 # Create clusters
 annot[,"ClustIdx":= bumphunter::clusterMaker(annot$CHR, annot$Coordinate_37, maxGap = 1000)]
 annot[,"ClustSize":=.N, by="ClustIdx"]
-TRUE.ClustIdx <- sapply(c(2,3,4,7,12),function(x) (annot[ClustSize==x,][sample(.N,1),]$ClustIdx))
+TRUE.ClustIdx <- sapply(c(2,4,6,8,14),function(x) (annot[ClustSize==x,][sample(.N,1),]$ClustIdx))
 TRUE.CpGs <- annot[ClustIdx%in%TRUE.ClustIdx,IlmnID]
 TRUE.Exposures <- sprintf("Exposure%d",c(1:3,9,10))
 
 # Define correlation structure of betas
 SIGMA.YY.data <- annot[,.("corr.mat"=list(AR.matrix(n=unique(ClustSize),rho=0.9))),by="ClustIdx"]
 SIGMA.YY <- as.matrix(Matrix::bdiag(SIGMA.YY.data$corr.mat))
-colnames(SIGMA.YY) <- rownames(SIGMA.YY) <-annot$IlmnID
+colnames(SIGMA.YY) <- rownames(SIGMA.YY) <- annot$IlmnID
 
 # Define correlation structure of exposure
 SIGMA.XX.data <- lapply(rep(0.7,p/5),function(x) AR.matrix(n=5,rho=x))
@@ -46,15 +46,17 @@ colnames(SIGMA.XX) <- rownames(SIGMA.XX) <- sprintf("Exposure%d",1:p)
 
 # Define true elements
 TRUE.ALPHA <- (rownames(SIGMA.XX) %in% TRUE.Exposures)*1
-TRUE.BETA <- (colnames(SIGMA.YY) %in% TRUE.CpGs)*1
 names(TRUE.ALPHA) <- rownames(SIGMA.XX)
-names(TRUE.BETA) <- rownames(SIGMA.YY)
 
-# TRUE.RHO.Weight <- TRUE.BETA
-# for(idx in TRUE.ClustIdx){
-#   TRUE.RHO.Weight[annot[ClustIdx%in%idx,IlmnID]] <- annot[ClustIdx%in%idx,ClustSize]
-# }
-# TRUE.RHO.Weight[TRUE.RHO.Weight!=0] <- TRUE.RHO * max(TRUE.RHO.Weight) / TRUE.RHO.Weight[TRUE.RHO.Weight!=0]
+# TRUE.BETA <- (colnames(SIGMA.YY) %in% TRUE.CpGs)*1
+# names(TRUE.BETA) <- rownames(SIGMA.YY)
+
+TRUE.BETA <- rep(0,length=ncol(SIGMA.YY))
+names(TRUE.BETA) <- colnames(SIGMA.YY)
+for(idx in TRUE.ClustIdx){
+  TRUE.BETA[annot[ClustIdx%in%idx,IlmnID]] <- annot[ClustIdx%in%idx,ClustSize]
+}
+TRUE.BETA[TRUE.BETA!=0] <- min(TRUE.BETA[TRUE.BETA!=0]) / TRUE.BETA[TRUE.BETA!=0]
 
 # Normalize loading
 TRUE.ALPHA <- TRUE.ALPHA / as.numeric(sqrt(t(TRUE.ALPHA) %*% SIGMA.XX %*% TRUE.ALPHA))
@@ -101,21 +103,25 @@ TRUE.Cancors <- sapply(TRUE.Clusters,function(ClustIdx) {
   TRUE.BETA.tmp[!names(TRUE.BETA.tmp) %in% clusters.list[[ClustIdx]]] <- 0
   cor(DATA.X %*% TRUE.ALPHA, DATA.Y %*% TRUE.BETA.tmp)
 })
+TRUE.Overall.Cancors <- as.vector(cor(DATA.X %*% TRUE.ALPHA, DATA.Y %*% TRUE.BETA))
+
+## True model
+TRUE.table <- data.table("TRUE.Clusters"=TRUE.Clusters,
+                         "TRUE.Cancors"=TRUE.Cancors,
+                         "TRUE.Overall.Cancors"=TRUE.Overall.Cancors,
+                         "TRUE.CpGs"=clusters.list[TRUE.Clusters],
+                         "TRUE.Exposures"=list(TRUE.Exposures),
+                         "TRUE.ALPHA"=list(TRUE.ALPHA),
+                         "TRUE.BETA"=TRUE.BETA.list)
 
 # Output the result
 sample.data <- list("DATA.X"=DATA.XZ,
                     "DATA.Y"=DATA.YZ,
                     "DATA.Z"=DATA.Z,
-                    "clusters.list"=clusters.list,
-                    "TRUE.Clusters"=TRUE.Clusters,
-                    "TRUE.Cancors"=TRUE.Cancors,
-                    "TRUE.CpGs"=clusters.list[TRUE.Clusters],
-                    "TRUE.Exposures"=TRUE.Exposures,
-                    "TRUE.ALPHA"=TRUE.ALPHA,
-                    "TRUE.BETA"=TRUE.BETA.list,
                     "SIGMA.XX"=SIGMA.XX,
                     "SIGMA.YY"=SIGMA.YY,
-                    "SIGMA.XY"=SIGMA.XY)
-
+                    "SIGMA.XY"=SIGMA.XY,
+                    "clusters.list"=clusters.list,
+                    "TRUE.table"=TRUE.table)
 
 usethis::use_data(sample.data, compress = "xz",overwrite = TRUE)

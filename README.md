@@ -154,7 +154,7 @@ bp.merge <- 999
 Xmethod <- "SGL"
 Ymethod <- "OLS"
 X.groupidx <- c(rep(1,5),rep(2,5),rep(3,5),rep(4,5))
-maxB <- 500
+maxB <- 300
 nthread <- 2
 
 AclustsCCA.result <- AclustsCCA(X=DATA.X,
@@ -179,10 +179,10 @@ AclustsCCA.result <- AclustsCCA(X=DATA.X,
                                 nthread=nthread,
                                 test.stat="cancors") 
 
-TABLE1 <- data.table(summary_AclustsCCA(obj=AclustsCCA.result,annot=annot,n.top=9))
+TABLE1 <- data.table(summary_AclustsCCA(obj=AclustsCCA.result,annot=annot))
 
 # Are the true clusters selected as significant?
-sample.data$TRUE.Clusters; sort(TABLE1[Significant=="Yes",ClustIdx])
+sample.data$TRUE.table$TRUE.Clusters; sort(TABLE1[Significant=="Yes",ClustIdx])
 ```
 
 If you want to run more permutation test, then increase either
@@ -281,5 +281,5 @@ AclustsCCA.result.updated <- AclustsCCA.cont(obj=AclustsCCA.result,
                                              X=X.resid,
                                              Y=Y.resid,
                                              maxB=maxB*2)
-summary_AclustsCCA(obj=AclustsCCA.result.updated,annot=annot,n.top=5)
+summary_AclustsCCA(obj=AclustsCCA.result.updated,annot=annot)
 ```

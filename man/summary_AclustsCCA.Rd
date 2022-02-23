@@ -4,7 +4,7 @@
 \alias{summary_AclustsCCA}
 \title{Outputs summary of AclustsCCA result}
 \usage{
-summary_AclustsCCA(obj, annot, n.top)
+summary_AclustsCCA(obj, annot, n.top = NULL)
 }
 \arguments{
 \item{obj}{Output of \strong{\code{AclustsCCA}}}

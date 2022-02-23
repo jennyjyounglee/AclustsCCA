@@ -62,7 +62,7 @@ AclustsCCA <- function(clusters.list=NULL,X,Y,Z=NULL,X.resid=NULL,Y.resid=NULL,a
     clusters.list <- clusters.list[sapply(clusters.list,length)!=1]
   }
 
-  if(is.null(maxnum)) maxnum <- length(clusters.list)*1000
+  if(is.null(maxnum)) maxnum <- length(clusters.list)*(10^6)
 
   settings <- list(Xmethod=Xmethod,
                    Ymethod=Ymethod,

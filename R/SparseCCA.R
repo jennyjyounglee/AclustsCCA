@@ -25,7 +25,7 @@
 #'   - "OLS": Ordinary Least Square
 #'   - "SVD": Singular Value Decomposition
 #' @param X.groupidx          : A vector of length \eqn{p} that indicates grouping structure of exposure `X`
-#' @param standardize         : A standardization (center and scale) of exposure `X` and outcome `Y`
+#' @param standardize         : A logical flag for exposure \eqn{X} and outcome \eqn{Y} standardization, prior to fitting the model.
 #' @param max.iter            : A maximum number of iterations
 #' @param conv                : A tolerance value for convergence \eqn{epsilon}
 #'

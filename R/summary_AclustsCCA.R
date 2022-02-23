@@ -37,7 +37,7 @@
 #'
 #'
 #'
-summary_AclustsCCA <- function(obj,annot,n.top){
+summary_AclustsCCA <- function(obj,annot,n.top=NULL){
   sampler.result<-obj$permutation.result
   clusters.list<-obj$clusters.list
   ALPHA.observed<-obj$ALPHA.observed
@@ -63,7 +63,15 @@ summary_AclustsCCA <- function(obj,annot,n.top){
   p.rank <- match(pEstimate(sampler.result), sort(unique(pEstimate(sampler.result)))) # 1 2 3 3 4 4 4 5 6 ...
   sort.p.rank <- sort(p.rank)
   order.p.rank <- order(p.rank)
-  cluster.toprank<- order.p.rank[sort.p.rank <= n.top]
+  if(is.null(n.top)){ # if null, then extract significant results
+    n.top <- num.rejected
+    if(n.top==0){
+      cat("None are significant")
+      return(NULL)
+    }
+  }
+  cluster.toprank <- order.p.rank[sort.p.rank <= n.top]
+
 
   # (2-2) Create Table
   nonzero.name <- function(x) names(x)[x!=0]

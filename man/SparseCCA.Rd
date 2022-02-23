@@ -45,7 +45,7 @@ SparseCCA(
 
 \item{X.groupidx}{: A vector of length \eqn{p} that indicates grouping structure of exposure \code{X}}
 
-\item{standardize}{: A standardization (center and scale) of exposure \code{X} and outcome \code{Y}}
+\item{standardize}{: A logical flag for exposure \eqn{X} and outcome \eqn{Y} standardization, prior to fitting the model.}
 
 \item{max.iter}{: A maximum number of iterations}
 

@@ -46,6 +46,7 @@ Collate:
     'SparseCCA.R'
     'annot.R'
     'partial.residual.R'
+    'plot_AclustsCCA.R'
     'sample.data.R'
     'summary_Aclustering.R'
     'summary_AclustsCCA.R'
