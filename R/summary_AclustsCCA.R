@@ -59,20 +59,21 @@ summary_AclustsCCA <- function(obj,annot,n.top=NULL){
   # cat(paste("Maximum number of permutation among all clusters: ",max(sampler.result@num),"\n",sep=""));
   # cat(paste("Total number of permutation across all clusters: ",sum(sampler.result@num),"\n",sep=""));
 
-  # (2-1) DEFINE TOP CLUSTERS WITH SAMLLEST PVALUE
-  p.rank <- match(pEstimate(sampler.result), sort(unique(pEstimate(sampler.result)))) # 1 2 3 3 4 4 4 5 6 ...
-  sort.p.rank <- sort(p.rank)
-  order.p.rank <- order(p.rank)
-  if(is.null(n.top)){ # if null, then extract significant results
-    n.top <- num.rejected
-    if(n.top==0){
-      cat("None are significant")
-      return(NULL)
-    }
+  # (2-1) DEFINE TOP CLUSTERS WITH SMALLEST PVALUE
+  if(!is.null(n.top)){ # if null, then extract significant results
+
+    p.rank <- match(pEstimate(sampler.result), sort(unique(pEstimate(sampler.result)))) # 1 2 3 3 4 4 4 5 6 ...
+    sort.p.rank <- sort(p.rank)
+    order.p.rank <- order(p.rank)
+    cluster.toprank <- order.p.rank[sort.p.rank <= n.top]
+
+  } else{
+    cluster.toprank <- rejected.cluster
   }
-  cluster.toprank <- order.p.rank[sort.p.rank <= n.top]
-
-
+  if(is.null(cluster.toprank)){
+    cat("None are significant")
+    return(NULL)
+  }
   # (2-2) Create Table
   nonzero.name <- function(x) names(x)[x!=0]
   nonzero.vector <- function(x) x[x!=0]
@@ -81,11 +82,16 @@ summary_AclustsCCA <- function(obj,annot,n.top=NULL){
     data.table(
       "ClustIdx"=x,
       "CHR"=annot[IlmnID %in% nonzero.name(BETA.observed[[x]]),unique(CHR)],
+      "strand"=list(annot[IlmnID %in% nonzero.name(BETA.observed[[x]]),unique(strand)]),
       "UCSC_RefGene_Name"=list(annot[IlmnID %in% nonzero.name(BETA.observed[[x]]),unique(unlist(strsplit(UCSC_RefGene_Name,";")))]),
+      "UCSC_RefGene_Group"=list(annot[IlmnID %in% nonzero.name(BETA.observed[[x]]),unique(unlist(strsplit(UCSC_RefGene_Group,";")))]),
       "Islands_Name"=list(annot[IlmnID %in% nonzero.name(BETA.observed[[x]]),unique(unlist(strsplit(Islands_Name,";")))]),
+      "Relation_to_Island"=list(annot[IlmnID %in% nonzero.name(BETA.observed[[x]]),unique(unlist(strsplit(Relation_to_Island,";")))]),
       "Significant"=ifelse(x %in% rejected.cluster,"Yes","No"),
       "Cancors"=cancors.observed[[x]],
       "N.Probes"=annot[IlmnID %in% nonzero.name(BETA.observed[[x]]),.N],
+      "DMR.start"=annot[IlmnID %in% nonzero.name(BETA.observed[[x]]),min(Coordinate_37)],
+      "DMR.end"=annot[IlmnID %in% nonzero.name(BETA.observed[[x]]),max(Coordinate_37)],
       "DMR.Length"=annot[IlmnID %in% nonzero.name(BETA.observed[[x]]),max(Coordinate_37)-min(Coordinate_37)],
       "Num.Exceed"=num.exceed[x],
       "Num.Perm"=num.perm[x],
@@ -97,6 +103,7 @@ summary_AclustsCCA <- function(obj,annot,n.top=NULL){
   })
   TABLE2 <- do.call("rbind",TABLE2)
   TABLE2[,"rank":=match(P.Value, sort(unique(P.Value)))]
+  TABLE2 <- TABLE2[order(rank),]
 
   return(data.frame(TABLE2))
 }
